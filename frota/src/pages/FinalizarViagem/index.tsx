@@ -70,19 +70,19 @@ export default function FinalizarViagem() {
         const response = await api.post("viagem_destino", formData);
     };
 
-    useEffect(() => {
-        async function getViagem(){
-            const response = await api.post("viagem/detalhes", {
-                viagem_id: route.params.viagem_id
-            });
+    //tentar adicionar os campos repetidos ao form
+    // useEffect(() => {
+    //     async function getViagem(){
+    //         const response = await api.post("viagem/detalhes", {
+    //             viagem_id: route.params.viagem_id
+    //         });
             
-            console.log("RESPONSE",response.data);
-           setFormData(response.data);
-           console.log("get viagem", formData);
-        }
+    //        setFormData(response.data);
+    //        console.log("get viagem", formData);
+    //     }
 
-        getViagem();
-    },[])
+    //     getViagem();
+    // },[])
 
     return (
         <SafeAreaView style={styles.container}>
