@@ -1,0 +1,398 @@
+import React, { useState, useContext } from "react";
+import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Alert } from "react-native";
+import { api } from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
+import AcompanhaViagem from "../../components/RegistrarViagem/AcompanhaViagem";
+
+interface Veiculo {
+    id: number;
+    nome: string;
+    marca: string;
+    placa: string;
+}
+
+interface Motorista {
+    id: number;
+    profissional_id: number;
+    user_id: number;
+    nome: string;
+    cnh: string;
+    validade: Date;
+    categoria: string;
+}
+
+export default function RegistrarViagem() {
+    const { user } = useContext(AuthContext);
+
+    const [placaVeiculo, setPlacaVeiculo] = useState("");
+    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
+    const [motorista, setMotorista] = useState<Motorista | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [showViagem, setShowViagem] = useState(false);
+
+    const [formData, setFormData] = useState({
+        data_viagem: "",
+        km_inicial: "",
+        local_saida: "",
+        destino: "",
+        objetivo_viagem: "",
+        nivel_combustivel: "",
+        nota: "",
+        status: "",
+    });
+
+    async function procurarVeiculo() {
+        if (!placaVeiculo.trim()) {
+            Alert.alert("Erro", "Por favor, digite o código do veículo");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await api.post("veiculo/placa", {
+                placa: placaVeiculo,
+            });
+
+            await getMotorista();
+            setVeiculo(response.data);
+            setShowForm(true);
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Erro", "Veículo não encontrado");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function getMotorista() {
+        try {
+            const response = await api.post("motorista/dados", {
+                user_id: user.id,
+            });
+            console.log(response.data);
+            setMotorista(response.data);
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Erro", "Motorista não encontrado");
+        }
+    }
+
+    async function registrarViagem() {
+        if (!veiculo || !motorista) {
+            Alert.alert("Erro", "Escolha um veiculo primeiro");
+            return;
+        }
+
+        if (!formData.data_viagem || !formData.km_inicial || !formData.local_saida || !formData.destino) {
+            Alert.alert("Erro", "Preencha todos os campos");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            const viagemData = {
+                ...formData,
+                veiculo_id: veiculo.id,
+                motorista_id: motorista.id,
+            };
+
+            const response = await api.post("viagem", viagemData);
+            Alert.alert("Sucesso", "Viagem registrada, confira na tela 'Viagens em andamento'.");
+
+            setFormData({
+                data_viagem: "",
+                km_inicial: "",
+                local_saida: "",
+                destino: "",
+                objetivo_viagem: "",
+                nivel_combustivel: "",
+                nota: "",
+                status: "",
+            });
+            setVeiculo(null);
+            setMotorista(null);
+            setPlacaVeiculo("");
+            setShowViagem(true);
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Erro", "Erro ao registrar viagem");
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    const updateFormData = (field: string, value: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <View style={styles.headerContent}>
+                    <View style={styles.logoContainer}>
+                        <Text style={styles.logoText}>FROTA</Text>
+                    </View>
+                </View>
+            </View>
+
+            <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
+                {showViagem ? "" : <Text style={styles.formTitle}>Registro de Viagem</Text>}
+
+                {showForm ? (
+                    <View>
+                        {(motorista || veiculo) && (
+                            <View style={styles.infoContainer}>
+                                {motorista && (
+                                    <Text style={styles.infoText}>
+                                        <Text style={styles.infoLabel}>Motorista: </Text>
+                                        {motorista.nome}
+                                    </Text>
+                                )}
+                                {veiculo && (
+                                    <Text style={styles.infoText}>
+                                        <Text style={styles.infoLabel}>Veículo: </Text>
+                                        {veiculo.nome} - Placa: {veiculo.placa}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+
+                        {/* form */}
+                        {veiculo && motorista && (
+                            <>
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Data da Viagem *</Text>
+                                    <TextInput
+                                        placeholder="DD/MM/AAAA"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.data_viagem}
+                                        onChangeText={(text) => updateFormData("data_viagem", text)}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Km inicial *</Text>
+                                    <TextInput
+                                        placeholder="Quilometragem inicial"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.km_inicial}
+                                        onChangeText={(text) => updateFormData("km_inicial", text)}
+                                        keyboardType="numeric"
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Local de saída *</Text>
+                                    <TextInput
+                                        placeholder="Local de saída"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.local_saida}
+                                        onChangeText={(text) => updateFormData("local_saida", text)}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Destino *</Text>
+                                    <TextInput
+                                        placeholder="Destino"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.destino}
+                                        onChangeText={(text) => updateFormData("destino", text)}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Objetivo da Viagem</Text>
+                                    <TextInput
+                                        placeholder="Objetivo da viagem"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.objetivo_viagem}
+                                        onChangeText={(text) => updateFormData("objetivo_viagem", text)}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Nível do Combustível</Text>
+                                    <TextInput
+                                        placeholder="Nível do combustível"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.nivel_combustivel}
+                                        onChangeText={(text) => updateFormData("nivel_combustivel", text)}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Notas</Text>
+                                    <TextInput
+                                        placeholder="Notas adicionais"
+                                        style={[styles.input, styles.textArea]}
+                                        placeholderTextColor="grey"
+                                        value={formData.nota}
+                                        onChangeText={(text) => updateFormData("nota", text)}
+                                        multiline
+                                        numberOfLines={3}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Status</Text>
+                                    <TextInput
+                                        placeholder="Status da viagem"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.status}
+                                        onChangeText={(text) => updateFormData("status", text)}
+                                    />
+                                </View>
+
+                                <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarViagem} disabled={submitting}>
+                                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Viagem</Text>}
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
+                ) : (
+                    <View>
+                        <View style={styles.fieldContainer}>
+                            <Text style={styles.label}>Digite a placa do veículo</Text>
+                            <TextInput placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
+                        </View>
+
+                        <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={procurarVeiculo} disabled={loading}>
+                            {loading ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Procurar</Text>}
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </ScrollView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#0B7EC8",
+    },
+    header: {
+        backgroundColor: "#0B7EC8",
+        paddingBottom: 25,
+        paddingTop: 20,
+    },
+    headerContent: {
+        paddingHorizontal: 25,
+        paddingTop: 15,
+    },
+    logoContainer: {
+        alignItems: "center",
+        marginBottom: 25,
+    },
+    logoText: {
+        fontSize: 28,
+        fontWeight: "bold",
+        color: "#FFFFFF",
+        letterSpacing: 2,
+    },
+    mainContent: {
+        flex: 1,
+        padding: 25,
+        backgroundColor: "#F5F5F5",
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        marginTop: -15,
+    },
+    formTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: 20,
+        color: "#333",
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: "#333",
+        marginBottom: 8,
+    },
+    fieldContainer: {
+        width: "100%",
+        marginBottom: 20,
+    },
+    input: {
+        width: "100%",
+        height: 50,
+        backgroundColor: "white",
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        color: "#000",
+        fontSize: 16,
+        borderWidth: 2,
+        borderColor: "#3A3F5A",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    textArea: {
+        height: 80,
+        textAlignVertical: "top",
+        paddingTop: 12,
+    },
+    button: {
+        width: "100%",
+        height: 50,
+        backgroundColor: "#0B7EC8",
+        borderRadius: 8,
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#2952CC",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
+        marginBottom: 20,
+    },
+    submitButton: {
+        backgroundColor: "#28a745",
+        marginTop: 10,
+        marginBottom: 30,
+    },
+    buttonDisabled: {
+        opacity: 0.6,
+    },
+    buttonText: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "white",
+        textTransform: "uppercase",
+        letterSpacing: 0.5,
+    },
+    infoContainer: {
+        backgroundColor: "#E8F5E8",
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "#28a745",
+    },
+    infoText: {
+        fontSize: 14,
+        color: "#333",
+        marginBottom: 5,
+    },
+    infoLabel: {
+        fontWeight: "bold",
+        color: "#28a745",
+    },
+});

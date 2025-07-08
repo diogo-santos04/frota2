@@ -1,0 +1,30 @@
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Menu from "../pages/Menu";
+import RegistrarViagem from "../pages/RegistrarViagem";
+import ViagensEmAndamento from "../pages/ViagensEmAndamento";
+import FinalizarViagem from "../pages/FinalizarViagem";
+
+const Stack = createNativeStackNavigator();
+
+export type StackParamsList = {
+    Menu: undefined;
+    RegistrarViagem: undefined;
+    ViagensEmAndamento: undefined;
+    FinalizarViagem: {
+        viagem_id: number
+    };
+};
+
+function AppRoutes() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="Menu" component={Menu} options={{ headerShown: false }} />
+            <Stack.Screen name="RegistrarViagem" component={RegistrarViagem} options={{ headerShown: false }} />
+            <Stack.Screen name="ViagensEmAndamento" component={ViagensEmAndamento} options={{ headerShown: false }} />
+            <Stack.Screen name="FinalizarViagem" component={FinalizarViagem} options={{ headerShown: false }} />
+        </Stack.Navigator>
+    );
+}
+
+export default AppRoutes;
