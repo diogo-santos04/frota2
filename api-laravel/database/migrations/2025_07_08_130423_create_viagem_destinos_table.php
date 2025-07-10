@@ -17,13 +17,13 @@ return new class extends Migration {
             $table->foreign('viagem_id')->references('id')->on('viagems')->onUpdate('cascade')->onDelete('cascade');
 
             $table->dateTime("data_saida");
-            $table->dateTime("data_chegada");
+            $table->dateTime("data_chegada")->useCurrent();
             $table->integer("km_saida");
             $table->integer("km_chegada");
             $table->integer("km_total");
             $table->string("local_saida");
             $table->string("local_destino");
-            $table->text("nota");
+            $table->text("nota")->nullable();
             $table->string("status");
             $table->timestamps();
         });

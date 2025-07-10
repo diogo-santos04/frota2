@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UnidadeVeiculoController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VeiculoController;
 use App\Http\Controllers\Api\ViagemController;
+use App\Http\Controllers\Api\ViagemDestinoController;
 use Illuminate\Support\Facades\Route;
 
 Route::post("/auth/login", [AuthController::class, 'login']);
@@ -30,4 +31,4 @@ Route::post('/veiculo/placa', [VeiculoController::class, 'getVeiculoByPlaca']);
 Route::resource('/viagem', ViagemController::class);
 Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
 //viagem destino
-Route::resource('/viagem_destino', controller: ViagemController::class);
+Route::resource('/viagem_destino', controller: ViagemDestinoController::class);

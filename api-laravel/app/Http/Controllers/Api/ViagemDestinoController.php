@@ -21,24 +21,25 @@ class ViagemDestinoController extends Controller
         $validator = Validator::make($request->all(), [
             'viagem_id' => 'required',
             'data_saida' => 'required',
-            'data_chegada' => 'required',
             'km_saida' => 'required',
             'km_chegada' => 'required',
             'km_total' => 'required',
             'local_saida' => 'required',
             'local_destino' => 'required',
-            'nota' => 'required',
+            'nota' => 'nullable',
             'status' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => 'Dados incorretos'], 400);
+            return response()->json([
+                'error' => 'Dados incorretos',
+                'details' => $validator->errors() 
+            ], 400);
         }
 
         $viagem_destino = ViagemDestino::create([
             'viagem_id' => $request->input('viagem_id'),
             'data_saida' => $request->input('data_saida'),
-            'data_chegada' => $request->input('data_chegada'),
             'km_saida' => $request->input('km_saida'),
             'km_chegada' => $request->input('km_chegada'),
             'km_total' => $request->input('km_total'),

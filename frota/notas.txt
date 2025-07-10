@@ -15,5 +15,12 @@
 
 
 <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
-                            <Text style={[styles.statusText, { color: statusColors.text }]}>{item.status}</Text>
-                        </View>
+    <Text style={[styles.statusText, { color: statusColors.text }]}>{item.status}</Text>
+</View>
+
+
+
+Viagem - Ler QRCODE e clica no botão iniciar a viagem, o sistema pega dados do motorista logado, e data hora do inicio da viagem(automaticamente) 
+abre uma tela para inserir o km inicial, local saída, local destino, e depois clicar no botão começar viagem.
+Finalizar viagem = clica na viagem ativa, abre o km final e tem o botão finalizar viagem,  e outro botão iniciar nova viagem
+Carro = Inserir uma Imagem ligada ao carro

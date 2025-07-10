@@ -36,11 +36,11 @@ const Menu = () => {
                             <Text style={styles.logoutText}>SAIR</Text>
                         </TouchableOpacity>
                     </View>
-
+        
                     <View style={styles.userIdContainer}>
                         <Icon name="badge" size={18} color="white" />
                         <Text style={styles.userIdLabel}>MATRÍCULA</Text>
-                        <Text style={styles.userId}>20231234567</Text>
+                        <Text style={styles.userId}>12345678</Text>
                     </View>
                 </View>
             </View>

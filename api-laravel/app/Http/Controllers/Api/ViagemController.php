@@ -21,13 +21,12 @@ class ViagemController extends Controller
         $validator = Validator::make($request->all(), [
             'veiculo_id' => 'required',
             'motorista_id' => 'required',
-            'data_viagem' => 'required',
             'km_inicial' => 'required',
             'local_saida' => 'required',
             'destino' => 'required',
             'objetivo_viagem' => 'required',
             'nivel_combustivel' => 'required',
-            'nota' => 'required',
+            'nota' => 'nullable',
             'status' => 'required',
         ]);
 
@@ -38,7 +37,6 @@ class ViagemController extends Controller
         $viagem = Viagem::create([
             'veiculo_id' => $request->input('veiculo_id'),
             'motorista_id' => $request->input('motorista_id'),
-            'data_viagem' => $request->input('data_viagem'),
             'km_inicial' => $request->input('km_inicial'),
             'local_saida' => $request->input('local_saida'),
             'destino' => $request->input('destino'),

@@ -19,14 +19,14 @@ return new class extends Migration
             $table->unsignedBigInteger('veiculo_id')->nullable();
             $table->foreign('veiculo_id')->references('id')->on('veiculos')->onUpdate('cascade')->onDelete('cascade');  
             
-            $table->date("data_viagem");
+            $table->dateTime("data_viagem")->useCurrent();
             $table->string("nivel_combustivel");
             $table->string("km_inicial");
             $table->string("local_saida");
             $table->string("destino");
             $table->string("objetivo_viagem");
             $table->string("status");
-            $table->string("nota");
+            $table->string("nota")->nullable();
             $table->timestamps();
         });
     }

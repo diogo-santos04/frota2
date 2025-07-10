@@ -7,34 +7,34 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 
-interface Profissional{
-    user_id:number,
-    nome: string,
-    cpf: string,
-    matricula: string,
-    celular: string,
-    codigo: string
+interface Profissional {
+    user_id: number;
+    nome: string;
+    cpf: string;
+    matricula: string;
+    celular: string;
+    codigo: string;
 }
 
-interface Veiculo{
-    id: number,
-    nome: string,
-    marca: string,
-    placa: string
+interface Veiculo {
+    id: number;
+    nome: string;
+    marca: string;
+    placa: string;
 }
 
-interface Motorista{
-    id: number,
-    profissional_id: number,
-    user_id: number,
-    cnh: string,
-    validade: string,
-    categoria: string
-    profissional?: Profissional
+interface Motorista {
+    id: number;
+    profissional_id: number;
+    user_id: number;
+    cnh: string;
+    validade: string;
+    categoria: string;
+    profissional?: Profissional;
 }
 
 interface Viagem {
-    id: number
+    id: number;
     veiculo_id: number;
     motorista_id: number;
     data_viagem: string;
@@ -45,15 +45,14 @@ interface Viagem {
     nivel_combustivel: string;
     nota: string;
     status: string;
-    veiculo?: Veiculo,
-    motorista?: Motorista
+    veiculo?: Veiculo;
+    motorista?: Motorista;
 }
 
 export default function ViagensEmAndamento() {
     const [viagens, setViagens] = useState<Viagem[]>([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-
 
     const { user } = useContext(AuthContext);
 
@@ -74,7 +73,8 @@ export default function ViagensEmAndamento() {
     }, []);
 
     const formatarData = (dataISO: string): string => {
-        const [ano, mes, dia] = dataISO.split("T")[0].split("-");
+        const datePart = dataISO.split(" ")[0];
+        const [ano, mes, dia] = datePart.split("-");
         return `${dia}/${mes}/${ano}`;
     };
 
@@ -125,7 +125,7 @@ export default function ViagensEmAndamento() {
                             <Text style={styles.detailValue}>{item.nivel_combustivel}</Text>
                         </View>
 
-                        <View style={styles.detailRow}>
+                        <View style={styles.detailRow}> 
                             <FontAwesome5 name="bullseye" size={16} color="#1976D2" style={styles.icon} />
                             <Text style={styles.detailLabel}>Objetivo:</Text>
                             <Text style={styles.detailValue}>{item.objetivo_viagem}</Text>
@@ -141,7 +141,7 @@ export default function ViagensEmAndamento() {
                     </View>
 
                     <View style={styles.cardFooter}>
-                        <TouchableOpacity style={styles.cardAction} onPress={() => (navigation.navigate("FinalizarViagem", {viagem_id: item.id}))}>
+                        <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id })}>
                             <Feather name="check-circle" size={16} color="#3fffa3" />
                             <Text style={[styles.cardActionText, { color: "#3fffa3" }]}>Finalizar Viagem</Text>
                         </TouchableOpacity>
@@ -268,12 +268,14 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         elevation: 5,
         overflow: "hidden",
-        borderColor: "black",
+        borderColor: "#0B7EC8",
+        borderWidth: 1,
     },
     cardGradient: {
         borderRadius: 12,
         overflow: "hidden",
         backgroundColor: "#FFFFFF",
+        borderColor: "black",
     },
     viagemHeader: {
         flexDirection: "row",
@@ -310,6 +312,8 @@ const styles = StyleSheet.create({
     detailsContainer: {
         padding: 16,
         backgroundColor: "#FFFFFF",
+        borderBottomWidth: 1,
+        borderBottomColor: "#0B7EC8",
     },
     detailRow: {
         flexDirection: "row",

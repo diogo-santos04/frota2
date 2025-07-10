@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from "react-native";
 import { api } from "../../services/api";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackParamsList } from "../../routes/app.routes";
 
 interface ViagemDestino {
     viagem_id: number;
@@ -24,10 +26,9 @@ type RouteDetailParams = {
 
 type OrderRouteProps = RouteProp<RouteDetailParams, "FinalizarViagem">;
 
-
 export default function FinalizarViagem() {
     const route = useRoute<OrderRouteProps>();
-
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
     const [formData, setFormData] = useState<ViagemDestino>({
         viagem_id: route.params.viagem_id,
@@ -49,9 +50,9 @@ export default function FinalizarViagem() {
         }));
     };
 
-    async function handleSubmit(){
-        if (!formData.data_saida || !formData.data_chegada || !formData.km_saida || !formData.km_chegada || !formData.local_saida || !formData.local_destino) {
-            Alert.alert("Erro", "Por favor, preencha todos os campos obrigatórios.");
+    async function handleSubmit() {
+        if (!formData.km_chegada) {
+            Alert.alert("Erro", "Por favor, preencha o campo Km chegada.");
             return;
         }
 
@@ -67,22 +68,36 @@ export default function FinalizarViagem() {
             Alert.alert("Erro", "Valores de Km Saída ou Km Chegada inválidos.");
         }
 
-        const response = await api.post("viagem_destino", formData);
-    };
+        console.log("FORM DATA: ", formData);
 
-    //tentar adicionar os campos repetidos ao form
-    // useEffect(() => {
-    //     async function getViagem(){
-    //         const response = await api.post("viagem/detalhes", {
-    //             viagem_id: route.params.viagem_id
-    //         });
-            
-    //        setFormData(response.data);
-    //        console.log("get viagem", formData);
-    //     }
+        try {
+            const response = await api.post("viagem_destino", formData);
+            Alert.alert("Sucesso", "Viagem finalizada com sucesso");
+            navigation.navigate("Menu");
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
-    //     getViagem();
-    // },[])
+    useEffect(() => {
+        async function getViagem() {
+            const response = await api.post("viagem/detalhes", {
+                viagem_id: route.params.viagem_id,
+            });
+
+            setFormData((prev) => ({
+                ...prev,
+                data_saida: response.data.data_viagem,
+                km_saida: parseFloat(response.data.km_inicial),
+                local_saida: response.data.local_saida,
+                local_destino: response.data.destino,
+                nota: response.data.nota,
+                status: response.data.status,
+            }));
+        }
+
+        getViagem();
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -96,39 +111,30 @@ export default function FinalizarViagem() {
 
             <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
                 <Text style={styles.formTitle}>Finalizar viagem</Text>
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Data Saida *</Text>
-                    <TextInput placeholder="DD/MM/AAAA" style={styles.input} placeholderTextColor="grey" value={formData.data_saida as string} onChangeText={(text) => updateFormData("data_saida", text)} />
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Data Chegada *</Text>
-                    <TextInput placeholder="DD/MM/AAAA" style={styles.input} placeholderTextColor="grey" value={formData.data_chegada as string} onChangeText={(text) => updateFormData("data_chegada", text)} />
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Km saida *</Text>
-                    <TextInput keyboardType="numeric" placeholder="Km saida" style={styles.input} placeholderTextColor="grey" value={formData.km_saida.toString()} onChangeText={(text) => updateFormData("km_saida", text === "" ? 0 : parseFloat(text))} />
-                </View>
 
                 <View style={styles.fieldContainer}>
                     <Text style={styles.label}>Km chegada *</Text>
-                    <TextInput keyboardType="numeric" placeholder="Km chegada" style={styles.input} placeholderTextColor="grey" value={formData.km_chegada.toString()} onChangeText={(text) => updateFormData("km_chegada", text === "" ? 0 : parseFloat(text))} />
+                    <TextInput
+                        keyboardType="numeric"
+                        placeholder="Km chegada"
+                        style={styles.input}
+                        placeholderTextColor="grey"
+                        value={formData.km_chegada.toString()}
+                        onChangeText={(text) => updateFormData("km_chegada", text === "" ? 0 : parseFloat(text))}
+                    />
                 </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Local de Saída *</Text>
-                    <TextInput placeholder="Local de Saída" style={styles.input} placeholderTextColor="grey" value={formData.local_saida} onChangeText={(text) => updateFormData("local_saida", text)} />
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Local de Destino *</Text>
-                    <TextInput placeholder="Local de Destino" style={styles.input} placeholderTextColor="grey" value={formData.local_destino} onChangeText={(text) => updateFormData("local_destino", text)} />
-                </View>
-
+          
                 <View style={styles.fieldContainer}>
                     <Text style={styles.label}>Observações (Nota)</Text>
-                    <TextInput placeholder="Adicione observações" style={[styles.input, styles.textArea]} placeholderTextColor="grey" multiline numberOfLines={4} value={formData.nota} onChangeText={(text) => updateFormData("nota", text)} />
+                    <TextInput
+                        placeholder="Adicione observações"
+                        style={[styles.input, styles.textArea]}
+                        placeholderTextColor="grey"
+                        multiline
+                        numberOfLines={4}
+                        value={formData.nota ? formData.nota : "" }
+                        onChangeText={(text) => updateFormData("nota", text)}
+                    />
                 </View>
 
                 <View style={styles.fieldContainer}>

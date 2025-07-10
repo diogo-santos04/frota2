@@ -9,6 +9,7 @@ class Motorista extends Model
     protected $fillable = [
         "profissional_id",
         "user_id",
+        "nome",
         "cnh",
         "validade",
         "categoria",

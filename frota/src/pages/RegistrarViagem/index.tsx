@@ -3,6 +3,10 @@ import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Acti
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import AcompanhaViagem from "../../components/RegistrarViagem/AcompanhaViagem";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackParamsList } from "../../routes/app.routes";
+import { useNavigation } from "@react-navigation/native";
+import axios, { AxiosError } from "axios";
 
 interface Veiculo {
     id: number;
@@ -23,6 +27,7 @@ interface Motorista {
 
 export default function RegistrarViagem() {
     const { user } = useContext(AuthContext);
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
     const [placaVeiculo, setPlacaVeiculo] = useState("");
     const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
@@ -33,14 +38,13 @@ export default function RegistrarViagem() {
     const [showViagem, setShowViagem] = useState(false);
 
     const [formData, setFormData] = useState({
-        data_viagem: "",
         km_inicial: "",
         local_saida: "",
         destino: "",
         objetivo_viagem: "",
         nivel_combustivel: "",
         nota: "",
-        status: "",
+        status: "Aberto",
     });
 
     async function procurarVeiculo() {
@@ -56,6 +60,7 @@ export default function RegistrarViagem() {
             });
 
             await getMotorista();
+            console.log("MOTORISTA: ", motorista);
             setVeiculo(response.data);
             setShowForm(true);
         } catch (error) {
@@ -85,7 +90,7 @@ export default function RegistrarViagem() {
             return;
         }
 
-        if (!formData.data_viagem || !formData.km_inicial || !formData.local_saida || !formData.destino) {
+        if (!formData.km_inicial || !formData.local_saida || !formData.destino) {
             Alert.alert("Erro", "Preencha todos os campos");
             return;
         }
@@ -102,7 +107,6 @@ export default function RegistrarViagem() {
             Alert.alert("Sucesso", "Viagem registrada, confira na tela 'Viagens em andamento'.");
 
             setFormData({
-                data_viagem: "",
                 km_inicial: "",
                 local_saida: "",
                 destino: "",
@@ -115,7 +119,13 @@ export default function RegistrarViagem() {
             setMotorista(null);
             setPlacaVeiculo("");
             setShowViagem(true);
+            navigation.navigate("Menu");
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    console.log("Detalhes do erro:", error.response.data);
+                }
+            }
             console.log(error);
             Alert.alert("Erro", "Erro ao registrar viagem");
         } finally {
@@ -165,17 +175,6 @@ export default function RegistrarViagem() {
                         {/* form */}
                         {veiculo && motorista && (
                             <>
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Data da Viagem *</Text>
-                                    <TextInput
-                                        placeholder="DD/MM/AAAA"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.data_viagem}
-                                        onChangeText={(text) => updateFormData("data_viagem", text)}
-                                    />
-                                </View>
-
                                 <View style={styles.fieldContainer}>
                                     <Text style={styles.label}>Km inicial *</Text>
                                     <TextInput
@@ -242,17 +241,6 @@ export default function RegistrarViagem() {
                                         onChangeText={(text) => updateFormData("nota", text)}
                                         multiline
                                         numberOfLines={3}
-                                    />
-                                </View>
-
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Status</Text>
-                                    <TextInput
-                                        placeholder="Status da viagem"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.status}
-                                        onChangeText={(text) => updateFormData("status", text)}
                                     />
                                 </View>
 
