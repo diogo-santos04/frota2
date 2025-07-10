@@ -7,6 +7,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import axios, { AxiosError } from "axios";
+import Toast from "react-native-toast-message";
+import { Feather } from "@expo/vector-icons";
 
 interface Veiculo {
     id: number;
@@ -49,7 +51,10 @@ export default function RegistrarViagem() {
 
     async function procurarVeiculo() {
         if (!placaVeiculo.trim()) {
-            Alert.alert("Erro", "Por favor, digite o código do veículo");
+            Toast.show({
+                type: "error",
+                text1: "Por favor, digite o código do veículo",
+            });
             return;
         }
 
@@ -60,12 +65,14 @@ export default function RegistrarViagem() {
             });
 
             await getMotorista();
-            console.log("MOTORISTA: ", motorista);
             setVeiculo(response.data);
             setShowForm(true);
         } catch (error) {
             console.log(error);
-            Alert.alert("Erro", "Veículo não encontrado");
+            Toast.show({
+                type: "error",
+                text1: "Veículo não encontrado",
+            });
         } finally {
             setLoading(false);
         }
@@ -80,18 +87,27 @@ export default function RegistrarViagem() {
             setMotorista(response.data);
         } catch (error) {
             console.log(error);
-            Alert.alert("Erro", "Motorista não encontrado");
+            Toast.show({
+                type: "error",
+                text1: "Motorista não encontrado",
+            });
         }
     }
 
     async function registrarViagem() {
         if (!veiculo || !motorista) {
-            Alert.alert("Erro", "Escolha um veiculo primeiro");
+            Toast.show({
+                type: "error",
+                text1: "Escolha um veículo primeiro",
+            });
             return;
         }
 
         if (!formData.km_inicial || !formData.local_saida || !formData.destino) {
-            Alert.alert("Erro", "Preencha todos os campos");
+            Toast.show({
+                type: "error",
+                text1: "Preencha todos os campos obrigatórios",
+            });
             return;
         }
 
@@ -104,7 +120,10 @@ export default function RegistrarViagem() {
             };
 
             const response = await api.post("viagem", viagemData);
-            Alert.alert("Sucesso", "Viagem registrada, confira na tela 'Viagens em andamento'.");
+            Toast.show({
+                type: "success",
+                text1: "Viagem registrada com sucesso",
+            });
 
             setFormData({
                 km_inicial: "",
@@ -119,7 +138,7 @@ export default function RegistrarViagem() {
             setMotorista(null);
             setPlacaVeiculo("");
             setShowViagem(true);
-            navigation.navigate("Menu");
+            navigation.navigate("ViagensEmAndamento");
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {
@@ -127,7 +146,10 @@ export default function RegistrarViagem() {
                 }
             }
             console.log(error);
-            Alert.alert("Erro", "Erro ao registrar viagem");
+            Toast.show({
+                type: "error",
+                text1: "Erro ao registrar viagem",
+            });
         } finally {
             setSubmitting(false);
         }
@@ -144,6 +166,14 @@ export default function RegistrarViagem() {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.headerContent}>
+                    <TouchableOpacity
+                        style={styles.homeButton}
+                        onPress={() => {
+                            navigation.navigate("Menu");
+                        }}
+                    >
+                        <Feather name="home" size={20} color="#0B7EC8" /> 
+                    </TouchableOpacity>
                     <View style={styles.logoContainer}>
                         <Text style={styles.logoText}>FROTA</Text>
                     </View>
@@ -278,12 +308,37 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     headerContent: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
         paddingHorizontal: 25,
         paddingTop: 15,
+        position: "relative",
+    },
+    homeButton: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 25, 
+        padding: 8,
+        position: "absolute",
+        left: 25,
+        top: 15,
+        zIndex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 45, 
+        height: 45,
     },
     logoContainer: {
         alignItems: "center",
         marginBottom: 25,
+        flex: 1,
+    },
+    headerTitleContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        marginLeft: 40,
+        marginRight: 40,
     },
     logoText: {
         fontSize: 28,

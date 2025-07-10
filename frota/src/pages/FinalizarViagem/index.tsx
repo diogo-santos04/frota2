@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { api } from "../../services/api";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
+import Toast from "react-native-toast-message";
 
 interface ViagemDestino {
     viagem_id: number;
     data_saida: string | Date;
-    data_chegada: string | Date;
     km_saida: number;
     km_chegada: number;
     km_total: number;
@@ -30,17 +30,18 @@ export default function FinalizarViagem() {
     const route = useRoute<OrderRouteProps>();
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
+    const [submitting, setSubmitting] = useState(false);
+
     const [formData, setFormData] = useState<ViagemDestino>({
         viagem_id: route.params.viagem_id,
         data_saida: "",
-        data_chegada: "",
         km_saida: 0,
         km_chegada: 0,
         km_total: 0,
         local_saida: "",
         local_destino: "",
         nota: "",
-        status: "",
+        status: "Finalizado",
     });
 
     const updateFormData = (field: keyof ViagemDestino, value: string | number) => {
@@ -51,8 +52,12 @@ export default function FinalizarViagem() {
     };
 
     async function handleSubmit() {
+        setSubmitting(true);
         if (!formData.km_chegada) {
-            Alert.alert("Erro", "Por favor, preencha o campo Km chegada.");
+            Toast.show({
+                type: "error",
+                text1: "Preencha os campos obrigatórios",
+            });
             return;
         }
 
@@ -65,17 +70,25 @@ export default function FinalizarViagem() {
                 km_total: totalKm,
             }));
         } else {
-            Alert.alert("Erro", "Valores de Km Saída ou Km Chegada inválidos.");
+            Toast.show({
+                type: "error",
+                text1: "Valores de Km Saída ou Km Chegada inválidos",
+            });
         }
 
         console.log("FORM DATA: ", formData);
 
         try {
             const response = await api.post("viagem_destino", formData);
-            Alert.alert("Sucesso", "Viagem finalizada com sucesso");
-            navigation.navigate("Menu");
+            Toast.show({
+                type: "success",
+                text1: "Viagem finalizada com sucesso",
+            });
+            navigation.navigate("ViagensEmAndamento");
         } catch (error) {
             console.log(error);
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -92,7 +105,6 @@ export default function FinalizarViagem() {
                 local_saida: response.data.local_saida,
                 local_destino: response.data.destino,
                 nota: response.data.nota,
-                status: response.data.status,
             }));
         }
 
@@ -123,7 +135,7 @@ export default function FinalizarViagem() {
                         onChangeText={(text) => updateFormData("km_chegada", text === "" ? 0 : parseFloat(text))}
                     />
                 </View>
-          
+
                 <View style={styles.fieldContainer}>
                     <Text style={styles.label}>Observações (Nota)</Text>
                     <TextInput
@@ -132,18 +144,13 @@ export default function FinalizarViagem() {
                         placeholderTextColor="grey"
                         multiline
                         numberOfLines={4}
-                        value={formData.nota ? formData.nota : "" }
+                        value={formData.nota ? formData.nota : ""}
                         onChangeText={(text) => updateFormData("nota", text)}
                     />
                 </View>
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Status</Text>
-                    <TextInput placeholder="Status da viagem" style={styles.input} placeholderTextColor="grey" value={formData.status} onChangeText={(text) => updateFormData("status", text)} />
-                </View>
-
                 <TouchableOpacity style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
-                    <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>Finalizar Viagem</Text>
+                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>Finalizar Viagem</Text>}
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>

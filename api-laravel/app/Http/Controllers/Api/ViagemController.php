@@ -12,7 +12,11 @@ class ViagemController extends Controller
     // GET /item
     public function index()
     {
-        return response()->json(Viagem::with(['veiculo', 'motorista'])->get());
+        $viagens = Viagem::with('veiculo', 'motorista.profissional')
+            ->where("status", "Aberto")
+            ->get();
+
+        return response()->json($viagens, 200);
     }
 
     // POST /item
@@ -49,7 +53,8 @@ class ViagemController extends Controller
         return response()->json($viagem, 201);
     }
 
-    public function viagemDetalhes(Request $request){
+    public function viagemDetalhes(Request $request)
+    {
         $viagem_id = $request->input("viagem_id");
         $viagem = Viagem::where("id", $viagem_id)->first();
 

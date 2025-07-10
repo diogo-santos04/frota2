@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator } from "react-native";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "../../services/api";
-import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
@@ -54,8 +53,6 @@ export default function ViagensEmAndamento() {
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
-    const { user } = useContext(AuthContext);
-
     async function getViagens() {
         try {
             setLoading(true);
@@ -104,7 +101,7 @@ export default function ViagensEmAndamento() {
                         <View style={styles.detailRow}>
                             <FontAwesome5 name="user" color="#1976D2" style={styles.icon} />
                             <Text style={styles.detailLabel}>Motorista:</Text>
-                            <Text style={styles.detailValue}>{user.nome}</Text>
+                            <Text style={styles.detailValue}>{item.motorista?.profissional?.nome}</Text>
                         </View>
 
                         <View style={styles.detailRow}>
@@ -125,7 +122,7 @@ export default function ViagensEmAndamento() {
                             <Text style={styles.detailValue}>{item.nivel_combustivel}</Text>
                         </View>
 
-                        <View style={styles.detailRow}> 
+                        <View style={styles.detailRow}>
                             <FontAwesome5 name="bullseye" size={16} color="#1976D2" style={styles.icon} />
                             <Text style={styles.detailLabel}>Objetivo:</Text>
                             <Text style={styles.detailValue}>{item.objetivo_viagem}</Text>
@@ -142,8 +139,8 @@ export default function ViagensEmAndamento() {
 
                     <View style={styles.cardFooter}>
                         <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id })}>
-                            <Feather name="check-circle" size={16} color="#3fffa3" />
-                            <Text style={[styles.cardActionText, { color: "#3fffa3" }]}>Finalizar Viagem</Text>
+                            <Feather name="check-circle" size={16} color="#28a745" />
+                            <Text style={[styles.cardActionText, { color: "#28a745" }]}>Finalizar Viagem</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.cardAction}>
@@ -177,6 +174,14 @@ export default function ViagensEmAndamento() {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <View style={styles.headerContent}>
+                        <TouchableOpacity
+                            style={styles.homeButton}
+                            onPress={() => {
+                                navigation.navigate("Menu");
+                            }}
+                        >
+                            <Feather name="home" size={20} color="#0B7EC8" />
+                        </TouchableOpacity>
                         <View style={styles.logoContainer}>
                             <Text style={styles.logoText}>FROTA</Text>
                         </View>
@@ -221,8 +226,25 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     headerContent: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
         paddingHorizontal: 25,
         paddingTop: 15,
+        position: "relative",
+    },
+    homeButton: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 25, 
+        padding: 8,
+        position: "absolute",
+        left: 25,
+        top: 15,
+        zIndex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 45, 
+        height: 45,
     },
     logoContainer: {
         alignItems: "center",
@@ -371,7 +393,7 @@ const styles = StyleSheet.create({
         paddingVertical: 60,
     },
     emptyText: {
-        color: "#FFF",
+        color: "#9e9eb3",
         fontSize: 18,
         fontWeight: "bold",
         marginTop: 16,

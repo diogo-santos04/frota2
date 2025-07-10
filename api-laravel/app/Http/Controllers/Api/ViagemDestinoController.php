@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ViagemDestino;
+use App\Models\Viagem;
 
 class ViagemDestinoController extends Controller
 {
@@ -33,7 +34,7 @@ class ViagemDestinoController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'error' => 'Dados incorretos',
-                'details' => $validator->errors() 
+                'details' => $validator->errors()
             ], 400);
         }
 
@@ -49,6 +50,17 @@ class ViagemDestinoController extends Controller
             'status' => $request->input('status'),
 
         ]);
+
+        $viagem = Viagem::find($request->input('viagem_id'));
+        if ($viagem) {
+            $viagem->status = "Finalizado";
+            $viagem->save();
+        } else {
+            return response()->json([
+                "error" => "erro ao atuallizar status da viagem",
+                "viagem_id" => $viagem->id
+            ], 404);
+        }
 
         return response()->json($viagem_destino, 201);
     }
