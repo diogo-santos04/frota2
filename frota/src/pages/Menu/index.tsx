@@ -72,7 +72,7 @@ const Menu = () => {
                     </View>
 
                     <View style={styles.cardRow}>
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#F3E5F5" }]} onPress={() => {}}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#F3E5F5" }]} onPress={() => {navigation.navigate("Historico")}}>
                             <Icon name="history" size={40} color="#9C27B0" />
                             <Text style={styles.cardText}>Histórico</Text>
                         </TouchableOpacity>

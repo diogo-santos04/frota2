@@ -13,7 +13,13 @@ class ViagemDestinoController extends Controller
     // GET /item
     public function index()
     {
-        return response()->json(ViagemDestino::all());
+        $viagemDestinos = ViagemDestino::with([
+            'viagem',
+            'viagem.veiculo',
+            'viagem.motorista.profissional'
+        ])->get();
+
+        return response()->json($viagemDestinos);
     }
 
     // POST /item
