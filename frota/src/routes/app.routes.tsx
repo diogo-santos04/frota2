@@ -5,6 +5,7 @@ import RegistrarViagem from "../pages/RegistrarViagem";
 import ViagensEmAndamento from "../pages/ViagensEmAndamento";
 import FinalizarViagem from "../pages/FinalizarViagem";
 import Historico from "../pages/Historico";
+import RegistrarAbastecimento from "../pages/RegistrarAbastecimento";
 
 const Stack = createNativeStackNavigator();
 
@@ -13,9 +14,10 @@ export type StackParamsList = {
     RegistrarViagem: undefined;
     ViagensEmAndamento: undefined;
     FinalizarViagem: {
-        viagem_id: number
+        viagem_id: number;
     };
-    Historico: undefined
+    Historico: undefined;
+    RegistrarAbastecimento: undefined;
 };
 
 function AppRoutes() {
@@ -26,6 +28,7 @@ function AppRoutes() {
             <Stack.Screen name="ViagensEmAndamento" component={ViagensEmAndamento} options={{ headerShown: false }} />
             <Stack.Screen name="FinalizarViagem" component={FinalizarViagem} options={{ headerShown: false }} />
             <Stack.Screen name="Historico" component={Historico} options={{ headerShown: false }} />
+            <Stack.Screen name="RegistrarAbastecimento" component={RegistrarAbastecimento} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }

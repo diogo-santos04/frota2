@@ -4,6 +4,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type AuthContextData = {
     user: UserProps;
+    profissional: ProfissionalProps;
+    motorista: MotoristaProps;
     isAuthenticated: boolean;
     signIn: (credentials: SignInProps) => Promise<void>;
     loadingAuth: boolean;
@@ -16,6 +18,24 @@ type UserProps = {
     nome: string;
     email: string;
     token: string;
+};
+
+type ProfissionalProps = {
+    id: string;
+    user_id: string;
+    nome: string;
+    cpf: string;
+    matricula: string;
+    celular: string;
+    codigo: string;
+};
+
+type MotoristaProps = {
+    id: string;
+    profissional_id: string;
+    cnh: string | null;
+    validade: Date;
+    categoria: string[];
 };
 
 type AuthProviderProps = {
@@ -37,6 +57,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
         token: "",
     });
 
+    const [profissional, setProfissional] = useState<ProfissionalProps>({
+        id: "",
+        user_id: "",
+        nome: "",
+        celular: "",
+        codigo: "",
+        cpf: "",
+        matricula: "",
+    });
+
+    const [motorista, setMotorista] = useState<MotoristaProps>({
+        id: "",
+        profissional_id: "",
+        categoria: [], 
+        cnh: "",
+        validade: new Date(),
+    });
+
     const [loadingAuth, setLoadingAuth] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -47,10 +85,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const userInfo = await AsyncStorage.getItem("@sesau");
             let savedUser: UserProps = JSON.parse(userInfo || "{}");
 
+            const profissionalInfo = await AsyncStorage.getItem("@profissional");
+            let savedProfissional: ProfissionalProps = JSON.parse(profissionalInfo || "{}");
+            
+            const motoristaInfo = await AsyncStorage.getItem("@motorista");
+            let savedMotorista: MotoristaProps = JSON.parse(motoristaInfo || "{}");
+
             if (savedUser.token) {
                 api.defaults.headers.common["Authorization"] = `Bearer ${savedUser.token}`;
                 setUser(savedUser);
             }
+
+            setProfissional(savedProfissional);
+            setMotorista(savedMotorista);
 
             setLoading(false);
         }
@@ -76,9 +123,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 token: token,
             };
 
+            const profissionalResponse = await api.post("/profissional/detalhes", {
+                user_id: userData.id,
+            });
+
+            const profissionalData: ProfissionalProps = profissionalResponse.data;
+
+            const motoristaResponse = await api.post("/motorista/dados", {
+                user_id: userData.id  
+            })
+
+            const motoristaData: MotoristaProps = motoristaResponse.data;
+
             await AsyncStorage.setItem("@sesau", JSON.stringify(userData));
+            await AsyncStorage.setItem("@profissional", JSON.stringify(profissionalData));
+            await AsyncStorage.setItem("@motorista", JSON.stringify(motoristaData));
+
             api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
             setUser(userData);
+            setProfissional(profissionalData);
+            setMotorista(motoristaData);
         } catch (error) {
             console.log("Erro no login:", error);
         } finally {
@@ -94,14 +158,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } finally {
             await AsyncStorage.clear();
             setUser({ id: "", nome: "", email: "", token: "" });
+            setProfissional({
+                id: "",
+                user_id: "",
+                nome: "",
+                celular: "",
+                codigo: "",
+                cpf: "",
+                matricula: "",
+            });
         }
     }
 
-    return (
-        <AuthContext.Provider
-            value={{ user, isAuthenticated, signIn, loading, loadingAuth, signOut }}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={{ user, profissional, motorista, isAuthenticated, signIn, loading, loadingAuth, signOut }}>{children}</AuthContext.Provider>;
 }

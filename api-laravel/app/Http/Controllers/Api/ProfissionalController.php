@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Profissional;
+use Response;
 
 class ProfissionalController extends Controller
 {
@@ -13,6 +14,13 @@ class ProfissionalController extends Controller
     public function index()
     {
         return response()->json(Profissional::all());
+    }
+
+    public function profissionalDetalhes(Request $request){
+        $user_id = $request->input("user_id");
+        $profissional = Profissional::where("user_id", $user_id)->first();
+
+        return response()->json($profissional);
     }
 
     // POST /item

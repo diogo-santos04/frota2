@@ -8,7 +8,7 @@ import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 
 const Menu = () => {
-    const { user, signOut } = useContext(AuthContext);
+    const { user, signOut, profissional, motorista } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
     return (
@@ -40,7 +40,7 @@ const Menu = () => {
                     <View style={styles.userIdContainer}>
                         <Icon name="badge" size={18} color="white" />
                         <Text style={styles.userIdLabel}>MATRÍCULA</Text>
-                        <Text style={styles.userId}>12345678</Text>
+                        <Text style={styles.userId}>{profissional.matricula}</Text>
                     </View>
                 </View>
             </View>
@@ -60,7 +60,7 @@ const Menu = () => {
                     </View>
 
                     <View style={styles.cardRow}>
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFF3E0" }]} onPress={() => {}}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFF3E0" }]} onPress={() => {navigation.navigate("RegistrarAbastecimento")}}>
                             <Icon name="local-gas-station" size={40} color="#FF9800" />
                             <Text style={styles.cardText}>Solicitar{"\n"}Abastecimento</Text>
                         </TouchableOpacity>

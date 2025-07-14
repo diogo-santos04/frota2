@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AbastecimentoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MotoristaController;
 use App\Http\Controllers\Api\ProfissionalController;
@@ -21,6 +22,7 @@ Route::resource('/motorista', MotoristaController::class);
 Route::post('/motorista/dados',[ MotoristaController::class, "getMotorista"]);
 //profissional
 Route::resource('/profissional', ProfissionalController::class);
+Route::post('/profissional/detalhes', [ProfissionalController::class, "profissionalDetalhes"]);
 //unidade
 Route::resource('/unidade', UnidadeController::class);
 Route::resource('/unidade_veiculo', UnidadeVeiculoController::class);
@@ -32,3 +34,6 @@ Route::resource('/viagem', ViagemController::class);
 Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
 //viagem destino
 Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
+//abastecimento
+Route::resource('/abastecimento', controller: AbastecimentoController::class);
+
