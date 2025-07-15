@@ -1,17 +1,31 @@
-import React, { useState } from "react";
-import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, StyleSheet, TextInput, ActivityIndicator } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import React, { useState, useContext } from "react";
+import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
+import { api } from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
-import { api } from "../../services/api";
+import Toast from "react-native-toast-message";
+import { Feather } from "@expo/vector-icons";
+
+interface Veiculo {
+    id: number;
+    nome: string;
+    marca: string;
+    placa: string;
+}
 
 export default function RegistrarAbastecimento() {
+    const { motorista, profissional } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+
+    const [placaVeiculo, setPlacaVeiculo] = useState("");
+    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
     const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [showForm, setShowForm] = useState(false);
 
     const [formData, setFormData] = useState({
-        id: "",
         veiculo_id: "",
         motorista_id: "",
         data_abastecimento: "",
@@ -20,15 +34,84 @@ export default function RegistrarAbastecimento() {
         tipo: "",
     });
 
-    async function handleSubmit(){
-        setLoading(true);
+    async function procurarVeiculo() {
+        if (!placaVeiculo.trim()) {
+            Toast.show({
+                type: "error",
+                text1: "Por favor, digite o código do veículo",
+            });
+            return;
+        }
+
         try {
-            const response = await api.post("/abastecimento", formData);
-            console.log(response.data);
+            setLoading(true);
+            const response = await api.post("veiculo/placa", {
+                placa: placaVeiculo,
+            });
+
+            setVeiculo(response.data);
+            setShowForm(true);
         } catch (error) {
             console.log(error);
-        }finally{
+            Toast.show({
+                type: "error",
+                text1: "Veículo não encontrado",
+            });
+        } finally {
             setLoading(false);
+        }
+    }
+
+    async function registrarAbastecimento() {
+        if (!veiculo || !motorista) {
+            Toast.show({
+                type: "error",
+                text1: "Escolha um veículo primeiro",
+            });
+            return;
+        }
+
+        if (!formData.data_abastecimento) {
+            Toast.show({
+                type: "error",
+                text1: "Preencha todos os campos obrigatórios",
+            });
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            const abastecimentoData = {
+                ...formData,
+                veiculo_id: veiculo.id,
+                motorista_id: motorista.id,
+            };
+
+            const response = await api.post("abastecimento", abastecimentoData);
+            Toast.show({
+                type: "success",
+                text1: "Abastecimento registrado com sucesso",
+            });
+
+            setFormData({
+                veiculo_id: "",
+                motorista_id: "",
+                data_abastecimento: "",
+                km: "",
+                litros: "",
+                tipo: "",
+            });
+            setVeiculo(null);
+            setPlacaVeiculo("");
+            navigation.navigate("Menu");
+        } catch (error) {
+            console.log(error);
+            Toast.show({
+                type: "error",
+                text1: "Erro ao registrar abastecimento",
+            });
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -58,52 +141,92 @@ export default function RegistrarAbastecimento() {
             </View>
 
             <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.formTitle}>Solicitação de Abastecimento</Text>
+                <Text style={styles.formTitle}>Registro de Abastecimento</Text>
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Data da solicitação(DATE)</Text>
-                    <TextInput
-                        placeholder="Data da solicitação"
-                        style={styles.input}
-                        placeholderTextColor="grey"
-                        value={formData.data_abastecimento}
-                        onChangeText={(text) => updateFormData("data_abastecimento", text)}
-                        keyboardType="default"
-                    />
-                </View>
+                {showForm ? (
+                    <View>
+                        {(motorista || veiculo) && (
+                            <View style={styles.infoContainer}>
+                                {motorista && (
+                                    <Text style={styles.infoText}>
+                                        <Text style={styles.infoLabel}>Motorista / Profissional: </Text>
+                                        {profissional.nome}
+                                    </Text>
+                                )}
+                                {veiculo && (
+                                    <Text style={styles.infoText}>
+                                        <Text style={styles.infoLabel}>Veículo: </Text>
+                                        {veiculo.nome} - Placa: {veiculo.placa}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Quilometragem</Text>
-                    <TextInput
-                        placeholder="Quilometragem"
-                        style={styles.input}
-                        placeholderTextColor="grey"
-                        value={formData.km}
-                        onChangeText={(text) => updateFormData("km", text)}
-                        keyboardType="numeric"
-                    />
-                </View>
+                        {veiculo && motorista && (
+                            <>
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Data do Pedido *</Text>
+                                    <TextInput
+                                        placeholder="Ex: 2025-10-10"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.data_abastecimento}
+                                        onChangeText={(text) => updateFormData("data_abastecimento", text)}
+                                        keyboardType="numeric"
+                                    />
+                                </View>
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Litros</Text>
-                    <TextInput placeholder="Litros" style={styles.input} placeholderTextColor="grey" value={formData.litros} onChangeText={(text) => updateFormData("litros", text)} keyboardType="numeric" />
-                </View>
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Quilometragem *</Text>
+                                    <TextInput
+                                        placeholder="Quilometragem"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.km}
+                                        onChangeText={(text) => updateFormData("km", text)}
+                                    />
+                                </View>
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Tipo(Alcool, gasolina...)</Text>
-                    <TextInput
-                        placeholder="Ex: alcool,gasolina..."
-                        style={styles.input}
-                        placeholderTextColor="grey"
-                        value={formData.tipo}
-                        onChangeText={(text) => updateFormData("tipo", text)}
-                        keyboardType="numeric"
-                    />
-                </View>
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Litros *</Text>
+                                    <TextInput
+                                        placeholder="Litros"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.litros}
+                                        onChangeText={(text) => updateFormData("litros", text)}
+                                    />
+                                </View>
 
-                <TouchableOpacity style={[styles.button, styles.submitButton, loading && styles.buttonDisabled]} onPress={handleSubmit} disabled={loading}>
-                    {loading ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar</Text>}
-                </TouchableOpacity>
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Tipo</Text>
+                                    <TextInput
+                                        placeholder="Tipo"
+                                        style={styles.input}
+                                        placeholderTextColor="grey"
+                                        value={formData.tipo}
+                                        onChangeText={(text) => updateFormData("tipo", text)}
+                                    />
+                                </View>
+
+                                <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarAbastecimento} disabled={submitting}>
+                                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Abastecimento</Text>}
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
+                ) : (
+                    <View>
+                        <View style={styles.fieldContainer}>
+                            <Text style={styles.label}>Digite a placa do veículo</Text>
+                            <TextInput placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
+                        </View>
+
+                        <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={procurarVeiculo} disabled={loading}>
+                            {loading ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Procurar</Text>}
+                        </TouchableOpacity>
+                    </View>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -141,16 +264,10 @@ const styles = StyleSheet.create({
         height: 45,
     },
     logoContainer: {
-        alignItems: "center",
-        marginBottom: 25,
-        flex: 1,
-    },
-    headerTitleContainer: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        marginLeft: 40,
-        marginRight: 40,
+        marginBottom: 25,
     },
     logoText: {
         fontSize: 28,
@@ -173,15 +290,15 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         color: "#333",
     },
-    fieldContainer: {
-        width: "100%",
-        marginBottom: 20,
-    },
     label: {
         fontSize: 14,
         fontWeight: "500",
         color: "#333",
         marginBottom: 8,
+    },
+    fieldContainer: {
+        width: "100%",
+        marginBottom: 20,
     },
     input: {
         width: "100%",
@@ -198,11 +315,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
-    },
-    textArea: {
-        height: 80,
-        textAlignVertical: "top",
-        paddingTop: 12,
     },
     button: {
         width: "100%",
@@ -232,5 +344,22 @@ const styles = StyleSheet.create({
         color: "white",
         textTransform: "uppercase",
         letterSpacing: 0.5,
+    },
+    infoContainer: {
+        backgroundColor: "#E8F5E8",
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "#28a745",
+    },
+    infoText: {
+        fontSize: 14,
+        color: "#333",
+        marginBottom: 5,
+    },
+    infoLabel: {
+        fontWeight: "bold",
+        color: "#28a745",
     },
 });

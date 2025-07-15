@@ -37,7 +37,7 @@ class AbastecimentoController extends Controller
             'data_abastecimento' => $request->input('data_abastecimento'),
             'km' => $request->input('km'),
             'litros' => $request->input('litros'),
-            'tipos' => $request->input('tipos'),
+            'tipo' => $request->input('tipo'),
         ]);
 
         return response()->json($abastecimento, 201);
