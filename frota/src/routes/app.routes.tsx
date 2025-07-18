@@ -6,6 +6,8 @@ import ViagensEmAndamento from "../pages/ViagensEmAndamento";
 import FinalizarViagem from "../pages/FinalizarViagem";
 import Historico from "../pages/Historico";
 import RegistrarAbastecimento from "../pages/RegistrarAbastecimento";
+import RegistrarVistoria from "../pages/RegistrarVistoria";
+import GerarQrCode from "../pages/GerarQrCode";
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +20,8 @@ export type StackParamsList = {
     };
     Historico: undefined;
     RegistrarAbastecimento: undefined;
+    RegistrarVistoria: undefined;
+    GerarQrCode: undefined;
 };
 
 function AppRoutes() {
@@ -29,6 +33,8 @@ function AppRoutes() {
             <Stack.Screen name="FinalizarViagem" component={FinalizarViagem} options={{ headerShown: false }} />
             <Stack.Screen name="Historico" component={Historico} options={{ headerShown: false }} />
             <Stack.Screen name="RegistrarAbastecimento" component={RegistrarAbastecimento} options={{ headerShown: false }} />
+            <Stack.Screen name="RegistrarVistoria" component={RegistrarVistoria} options={{ headerShown: false }} />
+            <Stack.Screen name="GerarQrCode" component={GerarQrCode} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }

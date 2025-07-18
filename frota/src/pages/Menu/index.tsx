@@ -65,9 +65,9 @@ const Menu = () => {
                             <Text style={styles.cardText}>Solicitar{"\n"}Abastecimento</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {}}>
-                            <Icon name="warning" size={40} color="#F44336" />
-                            <Text style={styles.cardText}>Registrar{"\n"}Ocorrência</Text>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {navigation.navigate("GerarQrCode")}}>
+                            <MaterialCommunityIcons name="qrcode" size={40} color="#F44336" />
+                            <Text style={styles.cardText}>Gerar{"\n"}QR Code</Text>
                         </TouchableOpacity>
                     </View>
 

@@ -6,7 +6,9 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import QRCodeScannerExpo from "../../components/QrCodeScanner";
 
 interface Veiculo {
     id: number;
@@ -25,13 +27,46 @@ export default function RegistrarAbastecimento() {
     const [submitting, setSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
 
-    const [formData, setFormData] = useState({
-        veiculo_id: "",
-        motorista_id: "",
-        data_abastecimento: "",
-        km: "",
-        litros: "",
-        tipo: "",
+    const [showScanner, setShowScanner] = useState<boolean>(false);
+    const [qrCodeData, setQrCodeData] = useState<Veiculo | null>(null);
+
+    const handleQRCodeRead = (data: string) => {
+        try {
+            const scannedVehicle: Veiculo = JSON.parse(data);
+            setQrCodeData(scannedVehicle);
+            setVeiculo(scannedVehicle);
+            setShowScanner(false);
+            setShowForm(true);
+        } catch (error) {
+            Toast.show({
+                type: "error",
+                text1: "Erro ao ler QR Code",
+                text2: "Dados inválidos do veículo.",
+            });
+            setShowScanner(false);
+        }
+    };
+
+    function dataDeHoje() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+
+        const formattedDate = `${year}-${month}-${day}`;
+
+        return formattedDate;
+    }
+
+    const [formData, setFormData] = useState(() => {
+        return {
+            veiculo_id: "",
+            motorista_id: "",
+            data_abastecimento: dataDeHoje(),
+            km: "",
+            litros: "",
+            tipo: "",
+        };
     });
 
     async function procurarVeiculo() {
@@ -140,94 +175,126 @@ export default function RegistrarAbastecimento() {
                 </View>
             </View>
 
-            <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.formTitle}>Registro de Abastecimento</Text>
+            {showScanner ? (
+                <View style={styles.qrCodeScannerContainer}>
+                    <QRCodeScannerExpo
+                        onQRCodeRead={handleQRCodeRead}
+                        onCancel={() => {
+                            setShowScanner(false);
+                        }}
+                    />
+                </View>
+            ) : (
+                <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
+                    <Text style={styles.formTitle}>Registro de Abastecimento</Text>
 
-                {showForm ? (
-                    <View>
-                        {(motorista || veiculo) && (
-                            <View style={styles.infoContainer}>
-                                {motorista && (
-                                    <Text style={styles.infoText}>
-                                        <Text style={styles.infoLabel}>Motorista / Profissional: </Text>
-                                        {profissional.nome}
-                                    </Text>
-                                )}
-                                {veiculo && (
-                                    <Text style={styles.infoText}>
-                                        <Text style={styles.infoLabel}>Veículo: </Text>
-                                        {veiculo.nome} - Placa: {veiculo.placa}
-                                    </Text>
-                                )}
-                            </View>
-                        )}
-
-                        {veiculo && motorista && (
-                            <>
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Data do Pedido *</Text>
-                                    <TextInput
-                                        placeholder="Ex: 2025-10-10"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.data_abastecimento}
-                                        onChangeText={(text) => updateFormData("data_abastecimento", text)}
-                                        keyboardType="numeric"
-                                    />
+                    {showForm ? (
+                        <View>
+                            {(motorista || veiculo) && (
+                                <View style={styles.infoContainer}>
+                                    {motorista && (
+                                        <Text style={styles.infoText}>
+                                            <Text style={styles.infoLabel}>Motorista / Profissional: </Text>
+                                            {profissional.nome}
+                                        </Text>
+                                    )}
+                                    {veiculo && (
+                                        <Text style={styles.infoText}>
+                                            <Text style={styles.infoLabel}>Veículo: </Text>
+                                            {veiculo.nome} - Placa: {veiculo.placa}
+                                        </Text>
+                                    )}
                                 </View>
+                            )}
 
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Quilometragem *</Text>
-                                    <TextInput
-                                        placeholder="Quilometragem"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.km}
-                                        onChangeText={(text) => updateFormData("km", text)}
-                                    />
-                                </View>
+                            {veiculo && motorista && (
+                                <>
+                                    <View style={styles.fieldContainer}>
+                                        <Text style={styles.label}>Data do Pedido *</Text>
+                                        <TextInput
+                                            placeholder="Ex: 2025-10-10"
+                                            style={styles.input}
+                                            placeholderTextColor="grey"
+                                            value={formData.data_abastecimento}
+                                            onChangeText={(text) => updateFormData("data_abastecimento", text)}
+                                            keyboardType="numeric"
+                                        />
+                                    </View>
 
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Litros *</Text>
-                                    <TextInput
-                                        placeholder="Litros"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.litros}
-                                        onChangeText={(text) => updateFormData("litros", text)}
-                                    />
-                                </View>
+                                    <View style={styles.fieldContainer}>
+                                        <Text style={styles.label}>Quilometragem *</Text>
+                                        <TextInput
+                                            placeholder="Ex: 10520"
+                                            style={styles.input}
+                                            placeholderTextColor="grey"
+                                            value={formData.km}
+                                            onChangeText={(text) => updateFormData("km", text)}
+                                            keyboardType="numeric"
+                                        />
+                                    </View>
 
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Tipo</Text>
-                                    <TextInput
-                                        placeholder="Tipo"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.tipo}
-                                        onChangeText={(text) => updateFormData("tipo", text)}
-                                    />
-                                </View>
+                                    <View style={styles.fieldContainer}>
+                                        <Text style={styles.label}>Litros *</Text>
+                                        <TextInput
+                                            placeholder="Litros"
+                                            keyboardType="numeric"
+                                            style={styles.input}
+                                            placeholderTextColor="grey"
+                                            value={formData.litros}
+                                            onChangeText={(text) => updateFormData("litros", text)}
+                                        />
+                                    </View>
 
-                                <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarAbastecimento} disabled={submitting}>
-                                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Abastecimento</Text>}
-                                </TouchableOpacity>
-                            </>
-                        )}
-                    </View>
-                ) : (
-                    <View>
-                        <View style={styles.fieldContainer}>
-                            <Text style={styles.label}>Digite a placa do veículo</Text>
-                            <TextInput placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
+                                    <View style={styles.fieldContainer}>
+                                        <Text style={styles.label}>Tipo</Text>
+                                        <Picker style={styles.input} selectedValue={formData.tipo} onValueChange={(text) => updateFormData("tipo", text)}>
+                                            {!formData.tipo && <Picker.Item label="Selecione o tipo de combustível" value="" enabled={true} style={{ color: "grey" }} />}
+                                            <Picker.Item label="Alcool" value="alcool" />
+                                            <Picker.Item label="Gasolina" value="gasolina" />
+                                            <Picker.Item label="Etanol" value="etanol" />
+                                            <Picker.Item label="Eletrico" value="eletrico" />
+                                        </Picker>
+                                    </View>
+
+                                    <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarAbastecimento} disabled={submitting}>
+                                        {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Abastecimento</Text>}
+                                    </TouchableOpacity>
+                                </>
+                            )}
                         </View>
+                    ) : (
+                        <View>
+                            <View style={styles.fieldContainer}>
+                                <Text style={styles.label}>Digite a placa do veículo</Text>
+                                <TextInput placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
+                            </View>
 
-                        <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={procurarVeiculo} disabled={loading}>
-                            {loading ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Procurar</Text>}
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </ScrollView>
+                            <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={procurarVeiculo} disabled={loading}>
+                                {loading ? (
+                                    <ActivityIndicator size={25} color="#FFF" />
+                                ) : (
+                                    <Text style={styles.buttonText}>
+                                        Procurar <Feather size={15} name="search" />{" "}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                            <Text style={{ justifyContent: "center", textAlign: "center", marginBottom: 15, fontSize: 15, fontWeight: "bold" }}>OU</Text>
+
+                            <TouchableOpacity
+                                style={[styles.button, loading && styles.buttonDisabled]}
+                                onPress={() => {
+                                    setShowScanner(true);
+                                }}
+                                disabled={loading}
+                            >
+                                <Text style={styles.buttonText}>
+                                    Procurar por codigo QR <MaterialCommunityIcons size={15} name="qrcode" />
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 }
@@ -361,5 +428,11 @@ const styles = StyleSheet.create({
     infoLabel: {
         fontWeight: "bold",
         color: "#28a745",
+    },
+    qrCodeScannerContainer: {
+        flex: 1,
+        backgroundColor: "black",
+        justifyContent: "center",
+        alignItems: "center",
     },
 });

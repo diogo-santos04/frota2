@@ -1,26 +1,10 @@
- const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case "em andamento":
-                return { bg: "rgba(255, 165, 0, 0.2)", text: "#ffa500" };
-            case "concluida":
-                return { bg: "rgba(63, 255, 163, 0.2)", text: "#3fffa3" };
-            case "cancelada":
-                return { bg: "rgba(255, 68, 54, 0.2)", text: "#ff4436" };
-            default:
-                return { bg: "rgba(158, 158, 179, 0.2)", text: "#9e9eb3" };
-        }
-    };
-
-            const statusColors = getStatusColor(item.status);
-
-
-<View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
-    <Text style={[styles.statusText, { color: statusColors.text }]}>{item.status}</Text>
-</View>
-
-
-
 Viagem - Ler QRCODE e clica no botão iniciar a viagem, o sistema pega dados do motorista logado, e data hora do inicio da viagem(automaticamente) 
 abre uma tela para inserir o km inicial, local saída, local destino, e depois clicar no botão começar viagem.
 Finalizar viagem = clica na viagem ativa, abre o km final e tem o botão finalizar viagem,  e outro botão iniciar nova viagem
 Carro = Inserir uma Imagem ligada ao carro
+
+remover notas
+teclaod de numero
+tipos colocar select
+data do abastecimento, data de hoje 
+colocar maisculo destinos
