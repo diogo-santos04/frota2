@@ -36,4 +36,4 @@ Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
 Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
 //abastecimento
 Route::resource('/abastecimento', controller: AbastecimentoController::class);
-
+//vistoria
