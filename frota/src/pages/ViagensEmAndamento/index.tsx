@@ -57,7 +57,7 @@ export default function ViagensEmAndamento() {
         try {
             setLoading(true);
             const response = await api.get("/viagem");
-            setViagens(response.data);
+            setViagens(response.data.reverse());
         } catch (error) {
             console.log(error);
         } finally {
@@ -96,6 +96,12 @@ export default function ViagensEmAndamento() {
                             <FontAwesome5 name="car" color="#1976D2" style={styles.icon} />
                             <Text style={styles.detailLabel}>Veículo:</Text>
                             <Text style={styles.detailValue}>{item.veiculo?.nome}</Text>
+                        </View>
+
+                        <View style={styles.detailRow}>
+                            <MaterialCommunityIcons name="car-info" color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Placa:</Text>
+                            <Text style={styles.detailValue}>{item.veiculo?.placa}</Text>
                         </View>
 
                         <View style={styles.detailRow}>

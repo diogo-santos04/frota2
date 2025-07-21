@@ -72,7 +72,7 @@ export default function Historico() {
         try {
             setLoading(true);
             const response = await api.get("/viagem_destino");
-            setViagemDestinos(response.data);
+            setViagemDestinos(response.data.reverse());
         } catch (error) {
             console.log(error);
         } finally {

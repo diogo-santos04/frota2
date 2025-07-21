@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Item extends Model
+class VistoriaItem extends Model
 {
     protected $fillable = [
-        "nome",
-        "descricao",
-        "ordem",
+        "vistoria_id",
+        "item_id",
+        "nota",
         "status"
     ];
 }

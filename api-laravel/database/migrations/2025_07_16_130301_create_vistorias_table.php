@@ -20,8 +20,17 @@ return new class extends Migration
             $table->foreign('motorista_id')->references('id')->on('motoristas')->onUpdate('cascade')->onDelete('cascade');
 
             $table->date("data_vistoria");
-            $table->boolean("pneu");
-            $table->boolean("estepe");
+            $table->integer("km_vistoria");
+            $table->integer("km_troca_oleo");
+            $table->date("data_troca_oleo");
+            $table->boolean("documento");
+            $table->boolean("cartao_abastecimento");
+            $table->string("combustivel");
+            $table->string("pneu_dianteiro");
+            $table->string("pneu_traseiro");
+            $table->string("pneu_estepe");
+            $table->string("nota");
+            $table->string("status");
             $table->timestamps();
         });
     }

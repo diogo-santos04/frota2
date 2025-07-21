@@ -55,7 +55,7 @@ const Menu = () => {
 
                         <TouchableOpacity style={[styles.card, { backgroundColor: "#E8F5E8" }]} onPress={() => {navigation.navigate("ViagensEmAndamento")}}>
                             <Icon name="directions-car" size={40} color="#4CAF50" />
-                            <Text style={styles.cardText}>Viagens em{"\n"}Andamento</Text>
+                            <Text style={styles.cardText}>Viagens em{"\n"}Andamento</Text>  
                         </TouchableOpacity>
                     </View>
 
@@ -65,10 +65,15 @@ const Menu = () => {
                             <Text style={styles.cardText}>Solicitar{"\n"}Abastecimento</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {navigation.navigate("GerarQrCode")}}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {}}>
+                            <MaterialIcons name="car-repair" size={40} color="#F44336" />
+                            <Text style={styles.cardText}>Solicitar {"\n"} Vistoria</Text>
+                        </TouchableOpacity>
+
+                        {/* <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {navigation.navigate("GerarQrCode")}}>
                             <MaterialCommunityIcons name="qrcode" size={40} color="#F44336" />
                             <Text style={styles.cardText}>Gerar{"\n"}QR Code</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
 
                     <View style={styles.cardRow}>

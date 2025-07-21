@@ -10,8 +10,17 @@ class Vistoria extends Model
         "motorista_id",
         "veiculo_id",
         "data_vistoria",
-        "pneu",
-        "estepe"
+        "km_vistoria",
+        "km_troca_oleo",
+        "data_troca_oleo",
+        "documento",
+        "cartao_abastecimento",
+        "combustivel",
+        "pneu_dianteiro",
+        "pneu_traseiro",
+        "pneu_estepe",
+        "nota",
+        "status"
     ];
 
     public function motorista(){

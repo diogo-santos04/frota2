@@ -5,6 +5,7 @@ import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import Toast from "react-native-toast-message";
+import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface ViagemDestino {
     viagem_id: number;
@@ -52,34 +53,39 @@ export default function FinalizarViagem() {
     };
 
     async function handleSubmit() {
+        console.log(formData);
         setSubmitting(true);
         if (!formData.km_chegada) {
             Toast.show({
                 type: "error",
                 text1: "Preencha os campos obrigatórios",
             });
+            setSubmitting(false);
             return;
         }
 
-        const kmSaidaNum = parseFloat(formData.km_saida.toString());
-        const kmChegadaNum = parseFloat(formData.km_chegada.toString());
-        if (!isNaN(kmSaidaNum) && !isNaN(kmChegadaNum)) {
-            const totalKm = kmChegadaNum - kmSaidaNum;
-            setFormData((prev) => ({
-                ...prev,
-                km_total: totalKm,
-            }));
-        } else {
+        if (formData.km_chegada < formData.km_saida) {
             Toast.show({
                 type: "error",
-                text1: "Valores de Km Saída ou Km Chegada inválidos",
+                text1: "Valor para Km inválido",
+                text2: "Chegada deve ser maior ou igual a saida !",
             });
+            setSubmitting(false);
+            return;
         }
 
-        console.log("FORM DATA: ", formData);
+        const kmSaida = formData.km_saida;
+        const kmChegada = formData.km_chegada;
 
+        const totalKm = kmChegada - kmSaida;
+        
+        const updatedFormData = {
+            ...formData,
+            km_total: totalKm,
+        };
         try {
-            const response = await api.post("viagem_destino", formData);
+            const response = await api.post("viagem_destino", updatedFormData);
+            console.log(response.data);
             Toast.show({
                 type: "success",
                 text1: "Viagem finalizada com sucesso",
@@ -115,6 +121,14 @@ export default function FinalizarViagem() {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.headerContent}>
+                    <TouchableOpacity
+                        style={styles.homeButton}
+                        onPress={() => {
+                            navigation.navigate("Menu");
+                        }}
+                    >
+                        <Feather name="home" size={20} color="#0B7EC8" />
+                    </TouchableOpacity>
                     <View style={styles.logoContainer}>
                         <Text style={styles.logoText}>FROTA</Text>
                     </View>
@@ -180,6 +194,19 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#FFFFFF",
         letterSpacing: 2,
+    },
+     homeButton: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 25, 
+        padding: 8,
+        position: "absolute",
+        left: 25,
+        top: 15,
+        zIndex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 45, 
+        height: 45,
     },
     formTitle: {
         fontSize: 20,
