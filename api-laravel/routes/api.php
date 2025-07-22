@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AbastecimentoController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\MotoristaController;
 use App\Http\Controllers\Api\ProfissionalController;
 use App\Http\Controllers\Api\UnidadeController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VeiculoController;
 use App\Http\Controllers\Api\ViagemController;
 use App\Http\Controllers\Api\ViagemDestinoController;
+use App\Http\Controllers\Api\VistoriaController;
+use App\Http\Controllers\Api\VistoriaItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::post("/auth/login", [AuthController::class, 'login']);
@@ -37,3 +40,6 @@ Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
 //abastecimento
 Route::resource('/abastecimento', controller: AbastecimentoController::class);
 //vistoria
+Route::resource('/vistoria', controller: VistoriaController::class);
+Route::resource('/vistoria_item', controller: VistoriaItemController::class);
+Route::resource('/item', controller: ItemController::class);

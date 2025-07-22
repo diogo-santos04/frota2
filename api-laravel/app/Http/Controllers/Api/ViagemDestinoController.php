@@ -64,7 +64,6 @@ class ViagemDestinoController extends Controller
         } else {
             return response()->json([
                 "error" => "erro ao atuallizar status da viagem",
-                "viagem_id" => $viagem->id
             ], 404);
         }
 

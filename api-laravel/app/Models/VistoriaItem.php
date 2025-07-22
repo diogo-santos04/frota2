@@ -12,4 +12,12 @@ class VistoriaItem extends Model
         "nota",
         "status"
     ];
+
+    public function vistoria(){
+        return $this->belongsTo(Vistoria::class);
+    }
+
+    public function item(){
+        return $this->belongsTo(Item::class);
+    }
 }

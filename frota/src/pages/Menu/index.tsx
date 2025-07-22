@@ -65,7 +65,7 @@ const Menu = () => {
                             <Text style={styles.cardText}>Solicitar{"\n"}Abastecimento</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {}}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {navigation.navigate("RegistrarVistoria")}}>
                             <MaterialIcons name="car-repair" size={40} color="#F44336" />
                             <Text style={styles.cardText}>Solicitar {"\n"} Vistoria</Text>
                         </TouchableOpacity>
@@ -82,7 +82,7 @@ const Menu = () => {
                             <Text style={styles.cardText}>Histórico</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#E3F2FD" }]} onPress={() => {}}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#E3F2FD" }]} onPress={() => {navigation.navigate("VistoriaItem", "")}}>
                             <FontAwesome5 name="cogs" size={40} color="#2196F3" />
                             <Text style={styles.cardText}>Assistência{"\n"}Técnica</Text>
                         </TouchableOpacity>

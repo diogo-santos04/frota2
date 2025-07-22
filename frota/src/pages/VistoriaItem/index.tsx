@@ -8,81 +8,9 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import { Feather } from "@expo/vector-icons";
-import ProcurarVeiculo from "../../components/ProcurarVeiculo";
-import VistoriaForm from "./VistoriaForm";
 
-interface Veiculo {
-    id: number;
-    nome: string;
-    marca: string;
-    placa: string;
-}
-
-interface FormData {
-    data_vistoria: string;
-    km_vistoria: string;
-    km_troca_oleo: string;
-    data_troca_oleo: string;
-    documento: boolean; 
-    cartao_abastecimento: boolean; 
-    combustivel: string;
-    pneu_dianteiro: string;
-    pneu_traseiro: string;
-    pneu_estepe: string;
-    nota: string;
-    status: string; 
-}
-
-export default function RegistrarVistoria() {
-    const { user, motorista, profissional } = useContext(AuthContext);
+export default function VistoriaItem() {
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-
-    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
-    const [submitting, setSubmitting] = useState<boolean>(false);
-
-    const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
-        setVeiculo(selectedVeiculo);
-    };
-
-    async function handleRegistrarVistoria(formData: FormData) {
-        if (!veiculo || !motorista) {
-            Toast.show({
-                type: "error",
-                text1: "Erro",
-                text2: "Dados do veículo ou motorista ausentes.",
-            });
-            return;
-        }
-
-        try {
-            setSubmitting(true);
-            const vistoriaData = {
-                ...formData,
-                veiculo_id: veiculo.id,
-                motorista_id: motorista.id,
-            };
-
-            const response = await api.post("vistoria", vistoriaData);
-
-            const vistoria_id = response.data.id;
-            ///////////////////////////////////
-            navigation.navigate("VistoriaItem", vistoria_id)
-            setVeiculo(null);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    console.log("Detalhes do erro:", error.response.data);
-                }
-            }
-            console.log(error);
-            Toast.show({
-                type: "error",
-                text1: "Erro ao registrar vistoria",
-            });
-        } finally {
-            setSubmitting(false);
-        }
-    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -104,18 +32,6 @@ export default function RegistrarVistoria() {
 
             <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
                 <Text style={styles.formTitle}>Registro de Vistoria</Text>
-
-                {!veiculo ? (
-                    <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} />
-                ) : (
-                    <VistoriaForm
-                        veiculo={veiculo}
-                        motorista={motorista}
-                        profissional={profissional}
-                        onSubmit={handleRegistrarVistoria}
-                        submitting={submitting}
-                    />
-                )}
             </ScrollView>
         </SafeAreaView>
     );

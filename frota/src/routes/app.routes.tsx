@@ -8,6 +8,7 @@ import Historico from "../pages/Historico";
 import RegistrarAbastecimento from "../pages/RegistrarAbastecimento";
 import RegistrarVistoria from "../pages/RegistrarVistoria";
 import GerarQrCode from "../pages/GerarQrCode";
+import VistoriaItem from "../pages/VistoriaItem";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,8 +21,11 @@ export type StackParamsList = {
     };
     Historico: undefined;
     RegistrarAbastecimento: undefined;
-    RegistrarVistoria: undefined;
     GerarQrCode: undefined;
+    RegistrarVistoria: undefined;
+    VistoriaItem: {
+        // vistoria_id?: number | undefined;
+    };
 };
 
 function AppRoutes() {
@@ -35,6 +39,7 @@ function AppRoutes() {
             <Stack.Screen name="RegistrarAbastecimento" component={RegistrarAbastecimento} options={{ headerShown: false }} />
             <Stack.Screen name="RegistrarVistoria" component={RegistrarVistoria} options={{ headerShown: false }} />
             <Stack.Screen name="GerarQrCode" component={GerarQrCode} options={{ headerShown: false }} />
+            <Stack.Screen name="VistoriaItem" component={VistoriaItem} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }
