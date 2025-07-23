@@ -21,7 +21,7 @@ class ItemController extends Controller
         $validator = Validator::make($request->all(), [
             'nome' => 'required',
             'descricao' => 'required',
-            'ordem' => 'required',
+            'ordem' => 'nullable',
             'status' => 'nullable'
         ]);
 

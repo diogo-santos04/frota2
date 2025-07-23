@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->foreign('vistoria_id')->references('id')->on('vistorias')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedBigInteger('item_id')->nullable();
             $table->foreign('item_id')->references('id')->on('items')->onUpdate('cascade')->onDelete('cascade');
-            $table->string("nota");
+            $table->string("nota")->nullable();
             $table->string("status")->nullable();
             $table->timestamps();
         });

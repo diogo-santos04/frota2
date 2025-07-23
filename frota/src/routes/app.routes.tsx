@@ -24,7 +24,7 @@ export type StackParamsList = {
     GerarQrCode: undefined;
     RegistrarVistoria: undefined;
     VistoriaItem: {
-        // vistoria_id?: number | undefined;
+        vistoria_id?: number | undefined;
     };
 };
 

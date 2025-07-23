@@ -10,6 +10,7 @@ import Toast from "react-native-toast-message";
 import { Feather } from "@expo/vector-icons";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import VistoriaForm from "./VistoriaForm";
+import VistoriaItem from "../VistoriaItem";
 
 interface Veiculo {
     id: number;
@@ -39,6 +40,7 @@ export default function RegistrarVistoria() {
 
     const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
     const [submitting, setSubmitting] = useState<boolean>(false);
+    const [showVistoriaItem, setShowVistoriaItem] = useState(false);
 
     const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
         setVeiculo(selectedVeiculo);
@@ -65,8 +67,8 @@ export default function RegistrarVistoria() {
             const response = await api.post("vistoria", vistoriaData);
 
             const vistoria_id = response.data.id;
-            ///////////////////////////////////
-            navigation.navigate("VistoriaItem", vistoria_id)
+
+            navigation.navigate("VistoriaItem", {vistoria_id: vistoria_id})
             setVeiculo(null);
         } catch (error) {
             if (axios.isAxiosError(error)) {

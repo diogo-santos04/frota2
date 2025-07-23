@@ -21,7 +21,7 @@ class VistoriaItemController extends Controller
         $validator = Validator::make($request->all(), [
             'vistoria_id' => 'required',
             'item_id' => 'required',
-            'nota' => 'required',
+            'nota' => 'nullable',
             'km_vistoria' => 'nullable',
         ]);
 

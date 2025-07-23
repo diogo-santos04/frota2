@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Toast from "react-native-toast-message";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Feather } from "@expo/vector-icons";
-import { format } from "date-fns"; 
+import { format } from "date-fns";
 
 interface Veiculo {
     id: number;
@@ -36,14 +36,14 @@ interface FormData {
     km_vistoria: string;
     km_troca_oleo: string;
     data_troca_oleo: string;
-    documento: boolean; 
-    cartao_abastecimento: boolean; 
+    documento: boolean;
+    cartao_abastecimento: boolean;
     combustivel: string;
     pneu_dianteiro: string;
     pneu_traseiro: string;
     pneu_estepe: string;
     nota: string;
-    status: string; 
+    status: string;
 }
 
 interface VistoriaFormProps {
@@ -63,14 +63,14 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
         km_vistoria: "",
         km_troca_oleo: "",
         data_troca_oleo: "",
-        documento: false, 
-        cartao_abastecimento: false, 
+        documento: false,
+        cartao_abastecimento: false,
         combustivel: "",
         pneu_dianteiro: "",
         pneu_traseiro: "",
         pneu_estepe: "",
         nota: "",
-        status: "Pendente", 
+        status: "Pendente",
     });
 
     const updateFormData = (field: keyof FormData, value: any) => {
@@ -108,225 +108,194 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
     };
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            {(motorista || veiculo) && (
-                <View style={styles.infoContainer}>
-                    {motorista && (
-                        <Text style={styles.infoText}>
-                            <Text style={styles.infoLabel}>Motorista: </Text>
-                            {profissional.nome}
-                        </Text>
-                    )}
-                    {veiculo && (
-                        <Text style={styles.infoText}>
-                            <Text style={styles.infoLabel}>Veículo: </Text>
-                            {veiculo.nome} - Placa: {veiculo.placa}
-                        </Text>
-                    )}
-                </View>
-            )}
+        <KeyboardAvoidingView style={{flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {(motorista || veiculo) && (
+                    <View style={styles.infoContainer}>
+                        {motorista && (
+                            <Text style={styles.infoText}>
+                                <Text style={styles.infoLabel}>Motorista: </Text>
+                                {profissional.nome}
+                            </Text>
+                        )}
+                        {veiculo && (
+                            <Text style={styles.infoText}>
+                                <Text style={styles.infoLabel}>Veículo: </Text>
+                                {veiculo.nome} - Placa: {veiculo.placa}
+                            </Text>
+                        )}
+                    </View>
+                )}
 
-            {veiculo && (
-                <>
-                    {!showForm2 ? (
-                        <>
-                            <View style={styles.rowContainer}>
-                                <View style={[styles.fieldContainer, styles.halfWidth]}>
-                                    <Text style={styles.label}>Data Vistoria *</Text>
-                                    <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_vistoria")}>
-                                        <Text style={styles.inputText}>{formData.data_vistoria || "Selecione a Data"}</Text>
-                                    </TouchableOpacity>
+                {veiculo && (
+                    <>
+                        {!showForm2 ? (
+                            <>
+                                <View style={styles.rowContainer}>
+                                    <View style={[styles.fieldContainer, styles.halfWidth]}>
+                                        <Text style={styles.label}>Data Vistoria *</Text>
+                                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_vistoria")}>
+                                            <Text style={styles.inputText}>{formData.data_vistoria || "Selecione a Data"}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <View style={[styles.fieldContainer, styles.halfWidth]}>
+                                        <Text style={styles.label}>Km Vistoria *</Text>
+                                        <TextInput
+                                            placeholder="Km Vistoria"
+                                            style={styles.input}
+                                            placeholderTextColor="grey"
+                                            value={formData.km_vistoria}
+                                            onChangeText={(text) => updateFormData("km_vistoria", text)}
+                                            keyboardType="numeric"
+                                        />
+                                    </View>
                                 </View>
 
-                                <View style={[styles.fieldContainer, styles.halfWidth]}>
-                                    <Text style={styles.label}>Km Vistoria *</Text>
+                                <View style={styles.rowContainer}>
+                                    <View style={[styles.fieldContainer, styles.halfWidth]}>
+                                        <Text style={styles.label}>Data Troca do Óleo *</Text>
+                                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_troca_oleo")}>
+                                            <Text style={styles.inputText}>{formData.data_troca_oleo || "Selecione a Data"}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <View style={[styles.fieldContainer, styles.halfWidth]}>
+                                        <Text style={styles.label}>Km Troca do Óleo *</Text>
+                                        <TextInput
+                                            placeholder="Km Troca do Óleo"
+                                            style={styles.input}
+                                            placeholderTextColor="grey"
+                                            value={formData.km_troca_oleo}
+                                            onChangeText={(text) => updateFormData("km_troca_oleo", text)}
+                                            keyboardType="numeric"
+                                        />
+                                    </View>
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Nível de Combustível *</Text>
+                                    <View style={styles.pickerContainer}>
+                                        <Picker
+                                            selectedValue={formData.combustivel}
+                                            onValueChange={(itemValue) => updateFormData("combustivel", itemValue)}
+                                            style={styles.picker}
+                                            itemStyle={styles.pickerItem}
+                                        >
+                                            <Picker.Item label="Selecione o Nível" value="" />
+                                            <Picker.Item label="1/4" value="1/4" />
+                                            <Picker.Item label="2/4" value="1/2" />
+                                            <Picker.Item label="3/4" value="3/4" />
+                                            <Picker.Item label="Cheio" value="Cheio" />
+                                        </Picker>
+                                    </View>
+                                </View>
+
+                                <View style={styles.rowContainer}>
+                                    <View style={[styles.fieldContainer, styles.checkboxContainer]}>
+                                        <Text style={styles.label}>Documento *</Text>
+                                        <TouchableOpacity style={styles.checkbox} onPress={() => updateFormData("documento", !formData.documento)}>
+                                            <Feather name={formData.documento ? "check-square" : "square"} size={24} color={formData.documento ? "#28a745" : "#333"} />
+                                            <Text style={styles.checkboxLabel}>Em dia</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <View style={[styles.fieldContainer, styles.checkboxContainer]}>
+                                        <Text style={styles.label}>Cartão Abastecimento *</Text>
+                                        <TouchableOpacity style={styles.checkbox} onPress={() => updateFormData("cartao_abastecimento", !formData.cartao_abastecimento)}>
+                                            <Feather name={formData.cartao_abastecimento ? "check-square" : "square"} size={24} color={formData.cartao_abastecimento ? "#28a745" : "#333"} />
+                                            <Text style={styles.checkboxLabel}>Possuo</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={() => setShowForm2(true)} disabled={submitting}>
+                                    <Text style={styles.buttonText}>Continuar Vistoria</Text>
+                                </TouchableOpacity>
+                            </>
+                        ) : (
+                            <>
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Pneu Dianteiro *</Text>
+                                    <View style={styles.pickerContainer}>
+                                        <Picker
+                                            selectedValue={formData.pneu_dianteiro}
+                                            onValueChange={(itemValue) => updateFormData("pneu_dianteiro", itemValue)}
+                                            style={styles.picker}
+                                            itemStyle={styles.pickerItem}
+                                        >
+                                            <Picker.Item label="Selecione a Condição" value="" />
+                                            <Picker.Item label="Ruim" value="Ruim" />
+                                            <Picker.Item label="Regular" value="Regular" />
+                                            <Picker.Item label="Bom" value="Bom" />
+                                            <Picker.Item label="Ótimo" value="Otimo" />
+                                        </Picker>
+                                    </View>
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Pneu Traseiro *</Text>
+                                    <View style={styles.pickerContainer}>
+                                        <Picker
+                                            selectedValue={formData.pneu_traseiro}
+                                            onValueChange={(itemValue) => updateFormData("pneu_traseiro", itemValue)}
+                                            style={styles.picker}
+                                            itemStyle={styles.pickerItem}
+                                        >
+                                            <Picker.Item label="Selecione a Condição" value="" />
+                                            <Picker.Item label="Ruim" value="Ruim" />
+                                            <Picker.Item label="Regular" value="Regular" />
+                                            <Picker.Item label="Bom" value="Bom" />
+                                            <Picker.Item label="Ótimo" value="Otimo" />
+                                        </Picker>
+                                    </View>
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Pneu Estepe *</Text>
+                                    <View style={styles.pickerContainer}>
+                                        <Picker
+                                            selectedValue={formData.pneu_estepe}
+                                            onValueChange={(itemValue) => updateFormData("pneu_estepe", itemValue)}
+                                            style={styles.picker}
+                                            itemStyle={styles.pickerItem}
+                                        >
+                                            <Picker.Item label="Selecione a Condição" value="" />
+                                            <Picker.Item label="Ruim" value="Ruim" />
+                                            <Picker.Item label="Regular" value="Regular" />
+                                            <Picker.Item label="Bom" value="Bom" />
+                                            <Picker.Item label="Ótimo" value="Otimo" />
+                                        </Picker>
+                                    </View>
+                                </View>
+
+                                <View style={styles.fieldContainer}>
+                                    <Text style={styles.label}>Observações</Text>
                                     <TextInput
-                                        placeholder="Km Vistoria"
-                                        style={styles.input}
+                                        placeholder="Alguma nota adicional?"
+                                        style={[styles.input, styles.textArea]}
                                         placeholderTextColor="grey"
-                                        value={formData.km_vistoria}
-                                        onChangeText={(text) => updateFormData("km_vistoria", text)}
-                                        keyboardType="numeric"
+                                        value={formData.nota}
+                                        onChangeText={(text) => updateFormData("nota", text)}
+                                        multiline
                                     />
                                 </View>
-                            </View>
 
-                            <View style={styles.rowContainer}>
-                                <View style={[styles.fieldContainer, styles.halfWidth]}>
-                                    <Text style={styles.label}>Data Troca do Óleo *</Text>
-                                    <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_troca_oleo")}>
-                                        <Text style={styles.inputText}>{formData.data_troca_oleo || "Selecione a Data"}</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={handleSubmit} disabled={submitting}>
+                                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Vistoria</Text>}
+                                </TouchableOpacity>
 
-                                <View style={[styles.fieldContainer, styles.halfWidth]}>
-                                    <Text style={styles.label}>Km Troca do Óleo *</Text>
-                                    <TextInput
-                                        placeholder="Km Troca do Óleo"
-                                        style={styles.input}
-                                        placeholderTextColor="grey"
-                                        value={formData.km_troca_oleo}
-                                        onChangeText={(text) => updateFormData("km_troca_oleo", text)}
-                                        keyboardType="numeric"
-                                    />
-                                </View>
-                            </View>
+                                <TouchableOpacity style={[styles.button, styles.backButton, submitting && styles.buttonDisabled]} onPress={() => setShowForm2(false)} disabled={submitting}>
+                                    <Text style={styles.buttonText}>Voltar</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </>
+                )}
 
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Nível de Combustível *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.combustivel}
-                                        onValueChange={(itemValue) => updateFormData("combustivel", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione o Nível" value="" />
-                                        <Picker.Item label="1/4" value="1/4" />
-                                        <Picker.Item label="2/4" value="1/2" />
-                                        <Picker.Item label="3/4" value="3/4" />
-                                        <Picker.Item label="Cheio" value="Cheio" />
-                                    </Picker>
-                                </View>
-                            </View>
-
-                            <View style={styles.rowContainer}>
-                                <View style={[styles.fieldContainer, styles.checkboxContainer]}>
-                                    <Text style={styles.label}>Documento *</Text>
-                                    <TouchableOpacity
-                                        style={styles.checkbox}
-                                        onPress={() => updateFormData("documento", !formData.documento)}
-                                    >
-                                        <Feather
-                                            name={formData.documento ? "check-square" : "square"}
-                                            size={24}
-                                            color={formData.documento ? "#28a745" : "#333"}
-                                        />
-                                        <Text style={styles.checkboxLabel}>Em dia</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View style={[styles.fieldContainer, styles.checkboxContainer]}>
-                                    <Text style={styles.label}>Cartão Abastecimento *</Text>
-                                    <TouchableOpacity
-                                        style={styles.checkbox}
-                                        onPress={() => updateFormData("cartao_abastecimento", !formData.cartao_abastecimento)}
-                                    >
-                                        <Feather
-                                            name={formData.cartao_abastecimento ? "check-square" : "square"}
-                                            size={24}
-                                            color={formData.cartao_abastecimento ? "#28a745" : "#333"}
-                                        />
-                                        <Text style={styles.checkboxLabel}>Possuo</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-
-                            <TouchableOpacity
-                                style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]}
-                                onPress={() => setShowForm2(true)}
-                                disabled={submitting}
-                            >
-                                <Text style={styles.buttonText}>Continuar Vistoria</Text>
-                            </TouchableOpacity>
-                        </>
-                    ) : (
-                        <>
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Pneu Dianteiro *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.pneu_dianteiro}
-                                        onValueChange={(itemValue) => updateFormData("pneu_dianteiro", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione a Condição" value="" />
-                                        <Picker.Item label="Ruim" value="Ruim" />
-                                        <Picker.Item label="Regular" value="Regular" />
-                                        <Picker.Item label="Bom" value="Bom" />
-                                        <Picker.Item label="Ótimo" value="Otimo" />
-                                    </Picker>
-                                </View>
-                            </View>
-
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Pneu Traseiro *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.pneu_traseiro}
-                                        onValueChange={(itemValue) => updateFormData("pneu_traseiro", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione a Condição" value="" />
-                                        <Picker.Item label="Ruim" value="Ruim" />
-                                        <Picker.Item label="Regular" value="Regular" />
-                                        <Picker.Item label="Bom" value="Bom" />
-                                        <Picker.Item label="Ótimo" value="Otimo" />
-                                    </Picker>
-                                </View>
-                            </View>
-
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Pneu Estepe *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.pneu_estepe}
-                                        onValueChange={(itemValue) => updateFormData("pneu_estepe", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione a Condição" value="" />
-                                        <Picker.Item label="Ruim" value="Ruim" />
-                                        <Picker.Item label="Regular" value="Regular" />
-                                        <Picker.Item label="Bom" value="Bom" />
-                                        <Picker.Item label="Ótimo" value="Otimo" />
-                                    </Picker>
-                                </View>
-                            </View>
-
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Observações</Text>
-                                <TextInput
-                                    placeholder="Alguma nota adicional?"
-                                    style={[styles.input, styles.textArea]}
-                                    placeholderTextColor="grey"
-                                    value={formData.nota}
-                                    onChangeText={(text) => updateFormData("nota", text)}
-                                    multiline
-                                />
-                            </View>
-
-                            <TouchableOpacity
-                                style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]}
-                                onPress={handleSubmit}
-                                disabled={submitting}
-                            >
-                                {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Vistoria</Text>}
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[styles.button, styles.backButton, submitting && styles.buttonDisabled]}
-                                onPress={() => setShowForm2(false)}
-                                disabled={submitting}
-                            >
-                                <Text style={styles.buttonText}>Voltar</Text>
-                            </TouchableOpacity>
-                        </>
-                    )}
-                </>
-            )}
-
-            {showDatePicker && (
-                <DateTimePicker
-                    value={new Date()}
-                    mode="date"
-                    display="default"
-                    onChange={handleDateChange}
-                />
-            )}
-        </ScrollView>
+                {showDatePicker && <DateTimePicker value={new Date()} mode="date" display="default" onChange={handleDateChange} />}
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -334,10 +303,10 @@ const styles = StyleSheet.create({
     rowContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 0, 
+        marginBottom: 0,
     },
     halfWidth: {
-        width: "48%", 
+        width: "48%",
     },
     fieldContainer: {
         width: "100%",
@@ -364,7 +333,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
-        justifyContent: "center", 
+        justifyContent: "center",
     },
     inputText: {
         color: "#000",
@@ -394,7 +363,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     backButton: {
-        backgroundColor: "#dc3545", 
+        backgroundColor: "#dc3545",
     },
     buttonDisabled: {
         opacity: 0.6,
@@ -462,7 +431,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
-        width: "100%", 
+        width: "100%",
     },
     checkboxLabel: {
         marginLeft: 8,

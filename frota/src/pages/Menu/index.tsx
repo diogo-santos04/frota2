@@ -82,7 +82,7 @@ const Menu = () => {
                             <Text style={styles.cardText}>Histórico</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#E3F2FD" }]} onPress={() => {navigation.navigate("VistoriaItem", "")}}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#E3F2FD" }]} onPress={() => {}}>
                             <FontAwesome5 name="cogs" size={40} color="#2196F3" />
                             <Text style={styles.cardText}>Assistência{"\n"}Técnica</Text>
                         </TouchableOpacity>
@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
         right: 0,
         alignItems: "center",
         zIndex: 1,
+        paddingTop: 20
     },
     logoText: {
         fontSize: 28,
