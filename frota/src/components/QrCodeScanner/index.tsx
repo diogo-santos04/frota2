@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Alert, Button } from "react-native";
-import { CameraView, Camera, BarcodeScanningResult } from "expo-camera"; // Import CameraView and Camera for permissions
+import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
 
 interface QRCodeScannerProps {
     onQRCodeRead: (data: string) => void;
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     },
     cancelButtonContainer: {
         position: "absolute",
-        bottom: 40,
+        bottom: 70,
         width: "80%",
     },
 });

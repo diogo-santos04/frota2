@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\MotoristaController;
 use App\Http\Controllers\Api\ProfissionalController;
+use App\Http\Controllers\Api\SolicitarManutencaoController;
+use App\Http\Controllers\Api\TipoManutencaoController;
 use App\Http\Controllers\Api\UnidadeController;
 use App\Http\Controllers\Api\UnidadeVeiculoController;
 use App\Http\Controllers\Api\UserController;
@@ -13,6 +15,8 @@ use App\Http\Controllers\Api\ViagemController;
 use App\Http\Controllers\Api\ViagemDestinoController;
 use App\Http\Controllers\Api\VistoriaController;
 use App\Http\Controllers\Api\VistoriaItemController;
+use App\Models\SolicitarManutencao;
+use App\Models\TipoManutencao;
 use Illuminate\Support\Facades\Route;
 
 Route::post("/auth/login", [AuthController::class, 'login']);
@@ -43,3 +47,6 @@ Route::resource('/abastecimento', controller: AbastecimentoController::class);
 Route::resource('/vistoria', controller: VistoriaController::class);
 Route::resource('/vistoria_item', controller: VistoriaItemController::class);
 Route::resource('/item', controller: ItemController::class);
+//manutencao
+Route::resource('/solicitar_manutencao', controller: SolicitarManutencaoController::class);
+Route::resource('/tipo_manutencao', controller: TipoManutencaoController::class);

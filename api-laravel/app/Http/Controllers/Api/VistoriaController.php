@@ -31,7 +31,7 @@ class VistoriaController extends Controller
             'pneu_dianteiro' => 'required',
             'pneu_traseiro' => 'required',
             'pneu_estepe' => 'required',
-            'nota' => 'required',
+            'nota' => 'nullable',
             'status' => 'required',
         ]);
 

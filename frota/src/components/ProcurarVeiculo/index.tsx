@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
-import QRCodeScannerExpo from "../QrCodeScanner"; 
 import { api } from "../../services/api";
 
 interface Veiculo {
@@ -15,28 +14,15 @@ interface Veiculo {
 interface VehicleSelectorProps {
     onVeiculoSelect: (vehicle: Veiculo) => void;
     currentVehicle: Veiculo | null;
+    onOpenScanner: () => void;
 }
 
 
-export default function ProcurarVeiculo({ onVeiculoSelect, currentVehicle }: VehicleSelectorProps) {
-    const [showScanner, setShowScanner] = useState<boolean>(false);
+export default function ProcurarVeiculo({ onVeiculoSelect, currentVehicle, onOpenScanner }: VehicleSelectorProps) {
+    // const [showScanner, setShowScanner] = useState<boolean>(false);
     const [placaVeiculo, setPlacaVeiculo] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
 
-    const handleQRCodeRead = (data: string) => {
-        try {
-            const scannedVehicle: Veiculo = JSON.parse(data);
-            onVeiculoSelect(scannedVehicle);
-            setShowScanner(false);
-        } catch (error) {
-            Toast.show({
-                type: "error",
-                text1: "Erro ao ler QR Code",
-                text2: "Dados inválidos do veículo.",
-            });
-            setShowScanner(false);
-        }
-    };
 
     async function procurarVeiculo() {
         if (!placaVeiculo.trim()) {
@@ -63,19 +49,6 @@ export default function ProcurarVeiculo({ onVeiculoSelect, currentVehicle }: Veh
         } finally {
             setLoading(false);
         }
-    }
-
-    if (showScanner) {
-        return (
-            <View style={styles.qrCodeScannerContainer}>
-                <QRCodeScannerExpo
-                    onQRCodeRead={handleQRCodeRead}
-                    onCancel={() => {
-                        setShowScanner(false);
-                    }}
-                />
-            </View>
-        );
     }
 
     return (
@@ -105,9 +78,7 @@ export default function ProcurarVeiculo({ onVeiculoSelect, currentVehicle }: Veh
 
             <TouchableOpacity
                 style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={() => {
-                    setShowScanner(true);
-                }}
+                onPress={onOpenScanner} 
                 disabled={loading}
             >
                 <Text style={styles.buttonText}>
@@ -119,7 +90,7 @@ export default function ProcurarVeiculo({ onVeiculoSelect, currentVehicle }: Veh
 }
 
 const styles = StyleSheet.create({
-    qrCodeScannerContainer: {
+    qrCodeScannerContainer: { 
         flex: 1,
         backgroundColor: "black",
         justifyContent: "center",

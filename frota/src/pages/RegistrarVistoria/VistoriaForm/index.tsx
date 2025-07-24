@@ -181,6 +181,7 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                                             onValueChange={(itemValue) => updateFormData("combustivel", itemValue)}
                                             style={styles.picker}
                                             itemStyle={styles.pickerItem}
+                                            
                                         >
                                             <Picker.Item label="Selecione o Nível" value="" />
                                             <Picker.Item label="1/4" value="1/4" />

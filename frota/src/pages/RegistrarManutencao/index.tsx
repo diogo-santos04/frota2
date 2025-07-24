@@ -1,16 +1,18 @@
-import React, { useState, useContext } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
+import React, { useState, useContext, useEffect } from "react";
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Toast from "react-native-toast-message";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
+import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { Picker } from "@react-native-picker/picker";
-import ProcurarVeiculo from "../../components/ProcurarVeiculo";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { format } from "date-fns";
 
 interface Veiculo {
     id: number;
@@ -19,30 +21,42 @@ interface Veiculo {
     placa: string;
 }
 
-interface Motorista {
-    id: number;
-    profissional_id: number;
-    user_id: number;
-    nome: string;
-    cnh: string;
-    validade: Date;
-    categoria: string;
+interface FormData {
+    veiculo_id: string;
+    motorista_id: string;
+    tipo_manutencao_id: string;
+    data_solicitacao: string;
+    nota: string;
 }
 
-export default function RegistrarViagem() {
+interface TipoManutencao {
+    id: number;
+    nome: string;
+}
+
+export default function RegistrarManutencao() {
     const { user, motorista, profissional } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
+    const [tiposManutencao, setTiposManutencao] = useState<TipoManutencao[]>([]);
+
+    const [showForm, setShowForm] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState<"data_solicitacao" | null>(null);
+
+    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
+    const [submitting, setSubmitting] = useState<boolean>(false);
     const [showScannerGlobal, setShowScannerGlobal] = useState<boolean>(false);
     const [scannedData, setScannedData] = useState<string | null>(null);
 
+    const [formData, setFormData] = useState({
+        tipo_manutencao_id: "",
+        data_solicitacao: "",
+        nota: "",
+    });
+
     const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
         setVeiculo(selectedVeiculo);
-        if (selectedVeiculo) {
-            setShowForm(true);
-        } else {
-            setShowForm(false);
-        }
+        setShowForm(true);
     };
 
     const handleQRCodeReadGlobal = (data: string) => {
@@ -59,90 +73,40 @@ export default function RegistrarViagem() {
             });
             setShowScannerGlobal(false);
             setScannedData(null);
+        } finally {
+            setShowForm(true);
         }
     };
 
-    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
-    const [submitting, setSubmitting] = useState<boolean>(false);
-    const [showForm, setShowForm] = useState<boolean>(false);
-    const [showViagem, setShowViagem] = useState<boolean>(false);
-
-    const [formData, setFormData] = useState({
-        km_inicial: "",
-        local_saida: "",
-        destino: "",
-        objetivo_viagem: "",
-        nivel_combustivel: "",
-        nota: "",
-        status: "Aberto",
-    });
-
-    async function registrarViagem() {
-        if (!veiculo || !motorista) {
-            Toast.show({
-                type: "error",
-                text1: "Escolha um veículo primeiro",
-            });
-            return;
-        }
-
-        if (!formData.km_inicial || !formData.local_saida || !formData.destino) {
-            Toast.show({
-                type: "error",
-                text1: "Preencha todos os campos obrigatórios",
-            });
-            return;
-        }
-
-        try {
-            setSubmitting(true);
-            const viagemData = {
-                ...formData,
-                veiculo_id: veiculo.id,
-                motorista_id: motorista.id,
-            };
-
-            const response = await api.post("viagem", viagemData);
-            Toast.show({
-                type: "success",
-                text1: "Viagem registrada com sucesso",
-            });
-
-            setFormData({
-                km_inicial: "",
-                local_saida: "",
-                destino: "",
-                objetivo_viagem: "",
-                nivel_combustivel: "",
-                nota: "",
-                status: "",
-            });
-            setVeiculo(null);
-            setShowViagem(true);
-            navigation.navigate("ViagensEmAndamento");
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    console.log("Detalhes do erro:", error.response.data);
-                }
-            }
-            console.log(error);
-            Toast.show({
-                type: "error",
-                text1: "Erro ao registrar viagem",
-            });
-        } finally {
-            setSubmitting(false);
-        }
-    }
-
-    const updateFormData = (field: string, value: string) => {
+    const updateFormData = (field: keyof FormData, value: any) => {
         setFormData((prev) => ({
             ...prev,
             [field]: value,
         }));
     };
+    const handleDateChange = (event: any, selectedDate: Date | undefined) => {
+        setShowDatePicker(null);
+        if (selectedDate) {
+            updateFormData(showDatePicker!, format(selectedDate, "dd/MM/yyyy"));
+        }
+    };
 
+    async function handleRegistrarManutencao() {}
+
+    useEffect(() => {
+        async function getTiposManutencao() {
+            try {
+                const response = await api.get("/tipo_manutencao");
+                const tipos_manutencao = response.data;
+                setTiposManutencao(tipos_manutencao);
+                console.log(tiposManutencao);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        getTiposManutencao();
+    }, []);
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -172,7 +136,7 @@ export default function RegistrarViagem() {
                 </View>
             ) : (
                 <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                    {showViagem ? "" : <Text style={styles.formTitle}>Registro de Viagem</Text>}
+                    <Text style={styles.formTitle}>Registro de Viagem</Text>
 
                     {showForm ? (
                         <View>
@@ -196,70 +160,31 @@ export default function RegistrarViagem() {
                             {veiculo && (
                                 <>
                                     <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Km inicial *</Text>
-                                        <TextInput
-                                            placeholder="Quilometragem inicial"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.km_inicial}
-                                            onChangeText={(text) => updateFormData("km_inicial", text)}
-                                            keyboardType="numeric"
-                                        />
+                                        <Text style={styles.label}>Data da solicitacao *</Text>
+                                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_solicitacao")}>
+                                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{formData.data_solicitacao || "Selecione a Data"}</Text>
+                                        </TouchableOpacity>
                                     </View>
 
                                     <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Local de saída *</Text>
-                                        <TextInput
-                                            placeholder="Local de saída"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.local_saida}
-                                            onChangeText={(text) => updateFormData("local_saida", text)}
-                                        />
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Destino *</Text>
-                                        <TextInput
-                                            placeholder="Destino"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.destino}
-                                            onChangeText={(text) => updateFormData("destino", text)}
-                                        />
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Objetivo da Viagem</Text>
-                                        <TextInput
-                                            placeholder="Objetivo da viagem"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.objetivo_viagem}
-                                            onChangeText={(text) => updateFormData("objetivo_viagem", text)}
-                                        />
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Nível do Combustível</Text>
+                                        <Text style={styles.label}>Tipo da Manutencao</Text>
                                         <View style={styles.pickerContainer}>
                                             <Picker
-                                                selectedValue={formData.nivel_combustivel}
-                                                onValueChange={(itemValue) => updateFormData("combustivel", itemValue)}
+                                                selectedValue={formData.tipo_manutencao_id}
+                                                onValueChange={(itemValue) => updateFormData("tipo_manutencao_id", itemValue)}
                                                 style={styles.picker}
                                                 itemStyle={styles.pickerItem}
                                             >
                                                 <Picker.Item label="Selecione o Nível" value="" />
-                                                <Picker.Item label="1/4" value="1/4" />
-                                                <Picker.Item label="2/4" value="1/2" />
-                                                <Picker.Item label="3/4" value="3/4" />
-                                                <Picker.Item label="Cheio" value="Cheio" />
+                                                {tiposManutencao.map((tipo_manutencao) => (
+                                                    <Picker.Item key={tipo_manutencao.id} label={tipo_manutencao.nome} value={tipo_manutencao.id} />
+                                                ))}
                                             </Picker>
                                         </View>
                                     </View>
 
-                                    <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarViagem} disabled={submitting}>
-                                        {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Viagem</Text>}
+                                    <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={handleRegistrarManutencao} disabled={submitting}>
+                                        {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Manutenção</Text>}
                                     </TouchableOpacity>
                                 </>
                             )}
@@ -271,6 +196,7 @@ export default function RegistrarViagem() {
                     )}
                 </ScrollView>
             )}
+            {showDatePicker && <DateTimePicker value={new Date()} mode="date" display="default" onChange={handleDateChange} />}
         </SafeAreaView>
     );
 }

@@ -105,12 +105,10 @@ export default function VistoriaItem() {
             for (const itemData of itemsToSave) {
                 await api.post("/vistoria_item", itemData);
             }
-            // const postPromises = itemsToSave.map((itemData) => api.post("/vistoria_item", itemData));
-            // await Promise.all(postPromises);
 
             Toast.show({
                 type: "success",
-                text1: "Itens da vistoria registrados com sucesso!",
+                text1: "Vistoria registrada com sucesso!",
             });
             navigation.navigate("Menu");
         } catch (error) {
@@ -275,7 +273,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 2,
-        height: 65,
+        height: 55,
     },
     checkbox: {
         width: 20,

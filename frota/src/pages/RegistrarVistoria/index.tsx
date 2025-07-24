@@ -10,7 +10,7 @@ import Toast from "react-native-toast-message";
 import { Feather } from "@expo/vector-icons";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import VistoriaForm from "./VistoriaForm";
-import VistoriaItem from "../VistoriaItem";
+import QRCodeScannerExpo from "../../components/QrCodeScanner";
 
 interface Veiculo {
     id: number;
@@ -24,14 +24,14 @@ interface FormData {
     km_vistoria: string;
     km_troca_oleo: string;
     data_troca_oleo: string;
-    documento: boolean; 
-    cartao_abastecimento: boolean; 
+    documento: boolean;
+    cartao_abastecimento: boolean;
     combustivel: string;
     pneu_dianteiro: string;
     pneu_traseiro: string;
     pneu_estepe: string;
     nota: string;
-    status: string; 
+    status: string;
 }
 
 export default function RegistrarVistoria() {
@@ -40,10 +40,28 @@ export default function RegistrarVistoria() {
 
     const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const [showVistoriaItem, setShowVistoriaItem] = useState(false);
+    const [showScannerGlobal, setShowScannerGlobal] = useState<boolean>(false);
+    const [scannedData, setScannedData] = useState<string | null>(null);
 
     const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
         setVeiculo(selectedVeiculo);
+    };
+
+    const handleQRCodeReadGlobal = (data: string) => {
+        try {
+            const scannedVehicle: Veiculo = JSON.parse(data);
+            handleVeiculoSelect(scannedVehicle); 
+            setShowScannerGlobal(false);
+            setScannedData(null); 
+        } catch (error) {
+            Toast.show({
+                type: "error",
+                text1: "Erro ao ler QR Code",
+                text2: "Dados inválidos do veículo.",
+            });
+            setShowScannerGlobal(false);
+            setScannedData(null); 
+        }
     };
 
     async function handleRegistrarVistoria(formData: FormData) {
@@ -68,7 +86,7 @@ export default function RegistrarVistoria() {
 
             const vistoria_id = response.data.id;
 
-            navigation.navigate("VistoriaItem", {vistoria_id: vistoria_id})
+            navigation.navigate("VistoriaItem", { vistoria_id: vistoria_id });
             setVeiculo(null);
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -80,6 +98,7 @@ export default function RegistrarVistoria() {
             Toast.show({
                 type: "error",
                 text1: "Erro ao registrar vistoria",
+                text2: "Ocorreu um erro desconhecido.", 
             });
         } finally {
             setSubmitting(false);
@@ -88,37 +107,52 @@ export default function RegistrarVistoria() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerContent}>
-                    <TouchableOpacity
-                        style={styles.homeButton}
-                        onPress={() => {
-                            navigation.navigate("Menu");
-                        }}
-                    >
-                        <Feather name="home" size={20} color="#0B7EC8" />
-                    </TouchableOpacity>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.logoText}>FROTA</Text>
-                    </View>
-                </View>
-            </View>
-
-            <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.formTitle}>Registro de Vistoria</Text>
-
-                {!veiculo ? (
-                    <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} />
-                ) : (
-                    <VistoriaForm
-                        veiculo={veiculo}
-                        motorista={motorista}
-                        profissional={profissional}
-                        onSubmit={handleRegistrarVistoria}
-                        submitting={submitting}
+            {showScannerGlobal ? (
+                <View style={styles.qrCodeScannerFullScreen}>
+                    <QRCodeScannerExpo
+                        onQRCodeRead={handleQRCodeReadGlobal}
+                        onCancel={() => setShowScannerGlobal(false)}
                     />
-                )}
-            </ScrollView>
+                </View>
+            ) : (
+                <>
+                    <View style={styles.header}>
+                        <View style={styles.headerContent}>
+                            <TouchableOpacity
+                                style={styles.homeButton}
+                                onPress={() => {
+                                    navigation.navigate("Menu");
+                                }}
+                            >
+                                <Feather name="home" size={20} color="#0B7EC8" />
+                            </TouchableOpacity>
+                            <View style={styles.logoContainer}>
+                                <Text style={styles.logoText}>FROTA</Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
+                        <Text style={styles.formTitle}>Registro de Vistoria</Text>
+
+                        {!veiculo ? (
+                            <ProcurarVeiculo
+                                onVeiculoSelect={handleVeiculoSelect}
+                                currentVehicle={veiculo}
+                                onOpenScanner={() => setShowScannerGlobal(true)} 
+                            />
+                        ) : (
+                            <VistoriaForm
+                                veiculo={veiculo}
+                                motorista={motorista}
+                                profissional={profissional}
+                                onSubmit={handleRegistrarVistoria}
+                                submitting={submitting}
+                            />
+                        )}
+                    </ScrollView>
+                </>
+            )}
         </SafeAreaView>
     );
 }
@@ -127,6 +161,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#0B7EC8",
+    },
+    qrCodeScannerFullScreen: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "black",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000, 
     },
     header: {
         backgroundColor: "#0B7EC8",

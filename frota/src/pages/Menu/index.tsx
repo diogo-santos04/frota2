@@ -82,9 +82,9 @@ const Menu = () => {
                             <Text style={styles.cardText}>Histórico</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#E3F2FD" }]} onPress={() => {}}>
-                            <FontAwesome5 name="cogs" size={40} color="#2196F3" />
-                            <Text style={styles.cardText}>Assistência{"\n"}Técnica</Text>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#E3F2FD" }]} onPress={() => {navigation.navigate("RegistrarManutencao")}}>
+                            <MaterialCommunityIcons name="car-wrench" size={40} color="#2196F3" />
+                            <Text style={styles.cardText}>Solicitar{"\n"}Manutenção</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
