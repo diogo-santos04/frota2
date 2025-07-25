@@ -87,11 +87,37 @@ export default function RegistrarManutencao() {
     const handleDateChange = (event: any, selectedDate: Date | undefined) => {
         setShowDatePicker(null);
         if (selectedDate) {
-            updateFormData(showDatePicker!, format(selectedDate, "dd/MM/yyyy"));
+            updateFormData(showDatePicker!, format(selectedDate, "yyyy-MM-dd"));
         }
     };
 
-    async function handleRegistrarManutencao() {}
+    async function handleRegistrarManutencao() {
+        setSubmitting(true);
+        try {
+            setFormData((prev) => ({
+                ...prev,
+                veiculo_id: veiculo?.id,
+                motorista_id: motorista.id
+            }))
+
+            const response = await api.post("/solicitar_manutencao", formData);
+            console.log(response.data);
+
+            Toast.show({
+                type: "success",
+                text1: "Manutenção solicitada com sucesso !",
+            });
+            navigation.navigate("Menu");
+        } catch (error) {
+            console.log(error);
+            Toast.show({
+                type: "error",
+                text1: "Algo deu errado",
+            });
+        } finally {
+            setSubmitting(false);
+        }
+    }
 
     useEffect(() => {
         async function getTiposManutencao() {
@@ -99,7 +125,6 @@ export default function RegistrarManutencao() {
                 const response = await api.get("/tipo_manutencao");
                 const tipos_manutencao = response.data;
                 setTiposManutencao(tipos_manutencao);
-                console.log(tiposManutencao);
             } catch (error) {
                 console.log(error);
             }
