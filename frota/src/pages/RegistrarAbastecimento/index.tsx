@@ -186,7 +186,7 @@ export default function RegistrarAbastecimento() {
                 </View>
             ) : (
                 <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                    <Text style={styles.formTitle}>Registro de Abastecimento</Text>
+                    <Text style={styles.formTitle}>Solicitar Abastecimento</Text>
 
                     {showForm ? (
                         <View>

@@ -69,4 +69,28 @@ class ViagemDestinoController extends Controller
 
         return response()->json($viagem_destino, 201);
     }
+
+    public function viagemDestinoChegada(Request $request){
+        $validator = Validator::make($request->all(), [
+            'viagem_destino_id' => 'required',
+            'cep' => 'required',
+            'numero' => 'required',
+            'bairro' => 'required',
+            'rua' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Dados incorretos'], 400);
+        }
+
+        $chegada = LocalChegada::create([
+            'viagem_id' => $request->input('viagem_id'),
+            'cep' => $request->input('cep'),
+            'numero' => $request->input('numero'),
+            'bairro' => $request->input('bairro'),
+            'rua' => $request->input('rua'),
+        ]);
+
+        return response()->json($chegada, 201);
+    }
 }

@@ -24,6 +24,7 @@ class SolicitarManutencaoController extends Controller
             'tipo_manutencao_id' => 'required',
             'data_solicitacao' => 'required',
             'nota' => 'nullable',
+            'foto' => 'nullable|max:2048',
             'status' => 'nullable',
         ]);
 
@@ -34,12 +35,18 @@ class SolicitarManutencaoController extends Controller
             ], 400);
         }
 
+        $path = null; 
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('manutencao', 'public');
+        }
+
         $manutencao = SolicitarManutencao::create([
             'motorista_id' => $request->input('motorista_id'),
             'veiculo_id' => $request->input('veiculo_id'),
             'tipo_manutencao_id' => $request->input('tipo_manutencao_id'),
             'data_solicitacao' => $request->input('data_solicitacao'),
             'nota' => $request->input('nota'),
+            'foto' => $path, 
             'status' => $request->input('status'),
         ]);
 

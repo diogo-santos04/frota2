@@ -12,10 +12,19 @@ class SolicitarManutencao extends Model
         "tipo_manutencao_id",
         "data_solicitacao",
         "nota",
+        "foto",
         "status"
     ];
 
     public function tipoManutencao(){
         return $this->belongsTo(TipoManutencao::class);
+    }
+    
+    public function veiculo(){
+        return $this->belongsTo(Veiculo::class);
+    }
+
+    public function motorista(){
+        return $this->belongsTo(Motorista::class);
     }
 }

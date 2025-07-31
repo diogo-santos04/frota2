@@ -24,6 +24,7 @@ return new class extends Migration {
             $table->date("data_solicitacao");
             $table->string("nota")->nullable();
             $table->string("status")->nullable();
+            $table->string("foto")->nullable();
             $table->timestamps();
         });
     }

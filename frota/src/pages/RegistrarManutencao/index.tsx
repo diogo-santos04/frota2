@@ -1,11 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
 import Toast from "react-native-toast-message";
 import { Feather } from "@expo/vector-icons";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
@@ -13,6 +12,8 @@ import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
+import * as ImagePicker from "expo-image-picker";
+import axios, { AxiosError } from "axios";
 
 interface Veiculo {
     id: number;
@@ -27,6 +28,7 @@ interface FormData {
     tipo_manutencao_id: string;
     data_solicitacao: string;
     nota: string;
+    foto?: string;
 }
 
 interface TipoManutencao {
@@ -47,10 +49,12 @@ export default function RegistrarManutencao() {
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [showScannerGlobal, setShowScannerGlobal] = useState<boolean>(false);
     const [scannedData, setScannedData] = useState<string | null>(null);
+    const [image, setImage] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         tipo_manutencao_id: "",
         data_solicitacao: "",
+        foto: "",
         nota: "",
     });
 
@@ -91,17 +95,50 @@ export default function RegistrarManutencao() {
         }
     };
 
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ["images", "videos"],
+            allowsEditing: false,
+            aspect: [16, 9],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+            updateFormData("foto", result.assets[0].uri);
+        }
+    };
+
     async function handleRegistrarManutencao() {
         setSubmitting(true);
         try {
-            setFormData((prev) => ({
-                ...prev,
-                veiculo_id: veiculo?.id,
-                motorista_id: motorista.id
-            }))
+            const formDataPayload = new FormData();
 
-            const response = await api.post("/solicitar_manutencao", formData);
-            console.log(response.data);
+            formDataPayload.append("motorista_id", String(motorista?.id));
+            formDataPayload.append("veiculo_id", String(veiculo?.id));
+            formDataPayload.append("tipo_manutencao_id", formData.tipo_manutencao_id);
+            formDataPayload.append("data_solicitacao", formData.data_solicitacao);
+            formDataPayload.append("nota", formData.nota);
+            // formDataPayload.append("status", "Aberto");
+
+            if (image) {
+                const localUri = image;
+                const filename = localUri.split("/").pop() || "photo.jpg";
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+                formDataPayload.append("foto", {
+                    uri: localUri,
+                    name: filename,
+                    type: type,
+                } as any);
+            }
+
+            const response = await api.post("/solicitar_manutencao", formDataPayload, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
 
             Toast.show({
                 type: "success",
@@ -109,6 +146,11 @@ export default function RegistrarManutencao() {
             });
             navigation.navigate("Menu");
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    console.log("Detalhes do erro:", error.response.data);
+                }
+            }
             console.log(error);
             Toast.show({
                 type: "error",
@@ -161,7 +203,7 @@ export default function RegistrarManutencao() {
                 </View>
             ) : (
                 <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                    <Text style={styles.formTitle}>Registro de Viagem</Text>
+                    <Text style={styles.formTitle}>Solicitar Manutenção</Text>
 
                     {showForm ? (
                         <View>
@@ -200,12 +242,20 @@ export default function RegistrarManutencao() {
                                                 style={styles.picker}
                                                 itemStyle={styles.pickerItem}
                                             >
-                                                <Picker.Item label="Selecione o Nível" value="" />
+                                                <Picker.Item label="Selecione o Tipo da Manutenção" value="" />
                                                 {tiposManutencao.map((tipo_manutencao) => (
                                                     <Picker.Item key={tipo_manutencao.id} label={tipo_manutencao.nome} value={tipo_manutencao.id} />
                                                 ))}
                                             </Picker>
                                         </View>
+                                    </View>
+
+                                    <View style={styles.fieldContainer}>
+                                        <Text style={styles.label}>Anexar Imagem (Opcional)</Text>
+                                        <TouchableOpacity style={styles.input} onPress={pickImage}>
+                                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{image ? "Imagem selecionada" : "Selecionar Imagem"}</Text>
+                                        </TouchableOpacity>
+                                        {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
                                     </View>
 
                                     <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={handleRegistrarManutencao} disabled={submitting}>
@@ -397,5 +447,14 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         zIndex: 1000,
+    },
+    imagePreview: {
+        width: "100%",
+        height: 200,
+        borderRadius: 8,
+        marginTop: 10,
+        resizeMode: "cover",
+        borderWidth: 2,
+        borderColor: "#3A3F5A",
     },
 });

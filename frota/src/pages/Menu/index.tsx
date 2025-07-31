@@ -87,6 +87,13 @@ const Menu = () => {
                             <Text style={styles.cardText}>Solicitar{"\n"}Manutenção</Text>
                         </TouchableOpacity>
                     </View>
+
+                    {/* <View style={styles.cardRow}>
+                        <TouchableOpacity style={[styles.card, { backgroundColor: "#F3E5F5" }]} onPress={() => {navigation.navigate("Geolocalizacao")}}>
+                            <Icon name="history" size={40} color="#9C27B0" />
+                            <Text style={styles.cardText}>Teste geolocalizacao</Text>
+                        </TouchableOpacity>
+                    </View> */}
                 </View>
             </View>
         </SafeAreaView>

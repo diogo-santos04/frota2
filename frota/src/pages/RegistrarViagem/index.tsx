@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -36,6 +36,21 @@ export default function RegistrarViagem() {
     const [showScannerGlobal, setShowScannerGlobal] = useState<boolean>(false);
     const [scannedData, setScannedData] = useState<string | null>(null);
 
+    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
+    const [submitting, setSubmitting] = useState<boolean>(false);
+    const [showForm, setShowForm] = useState<boolean>(false);
+    const [showViagem, setShowViagem] = useState<boolean>(false);
+
+    const [formData, setFormData] = useState({
+        km_inicial: "",
+        local_saida: "",
+        destino: "",
+        objetivo_viagem: "",
+        nivel_combustivel: "",
+        nota: "",
+        status: "Aberto",
+    });
+
     const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
         setVeiculo(selectedVeiculo);
         if (selectedVeiculo) {
@@ -62,21 +77,6 @@ export default function RegistrarViagem() {
         }
     };
 
-    const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
-    const [submitting, setSubmitting] = useState<boolean>(false);
-    const [showForm, setShowForm] = useState<boolean>(false);
-    const [showViagem, setShowViagem] = useState<boolean>(false);
-
-    const [formData, setFormData] = useState({
-        km_inicial: "",
-        local_saida: "",
-        destino: "",
-        objetivo_viagem: "",
-        nivel_combustivel: "",
-        nota: "",
-        status: "Aberto",
-    });
-
     async function registrarViagem() {
         if (!veiculo || !motorista) {
             Toast.show({
@@ -101,7 +101,7 @@ export default function RegistrarViagem() {
                 veiculo_id: veiculo.id,
                 motorista_id: motorista.id,
             };
-
+            console.log(viagemData);
             const response = await api.post("viagem", viagemData);
             Toast.show({
                 type: "success",
@@ -144,134 +144,136 @@ export default function RegistrarViagem() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerContent}>
-                    <TouchableOpacity
-                        style={styles.homeButton}
-                        onPress={() => {
-                            navigation.navigate("Menu");
-                        }}
-                    >
-                        <Feather name="home" size={20} color="#0B7EC8" />
-                    </TouchableOpacity>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.logoText}>FROTA</Text>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <View style={styles.headerContent}>
+                        <TouchableOpacity
+                            style={styles.homeButton}
+                            onPress={() => {
+                                navigation.navigate("Menu");
+                            }}
+                        >
+                            <Feather name="home" size={20} color="#0B7EC8" />
+                        </TouchableOpacity>
+                        <View style={styles.logoContainer}>
+                            <Text style={styles.logoText}>FROTA</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
 
-            {showScannerGlobal ? (
-                <View style={styles.qrCodeScannerContainer}>
-                    <QRCodeScannerExpo
-                        onQRCodeRead={handleQRCodeReadGlobal}
-                        onCancel={() => {
-                            setShowScannerGlobal(false);
-                        }}
-                    />
-                </View>
-            ) : (
-                <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                    {showViagem ? "" : <Text style={styles.formTitle}>Registro de Viagem</Text>}
+                {showScannerGlobal ? (
+                    <View style={styles.qrCodeScannerContainer}>
+                        <QRCodeScannerExpo
+                            onQRCodeRead={handleQRCodeReadGlobal}
+                            onCancel={() => {
+                                setShowScannerGlobal(false);
+                            }}
+                        />
+                    </View>
+                ) : (
+                    <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
+                        {showViagem ? "" : <Text style={styles.formTitle}>Registro de Viagem</Text>}
 
-                    {showForm ? (
-                        <View>
-                            {(motorista || veiculo) && (
-                                <View style={styles.infoContainer}>
-                                    {motorista && (
-                                        <Text style={styles.infoText}>
-                                            <Text style={styles.infoLabel}>Motorista: </Text>
-                                            {profissional.nome}
-                                        </Text>
-                                    )}
-                                    {veiculo && (
-                                        <Text style={styles.infoText}>
-                                            <Text style={styles.infoLabel}>Veículo: </Text>
-                                            {veiculo.nome} - Placa: {veiculo.placa}
-                                        </Text>
-                                    )}
-                                </View>
-                            )}
-
-                            {veiculo && (
-                                <>
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Km inicial *</Text>
-                                        <TextInput
-                                            placeholder="Quilometragem inicial"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.km_inicial}
-                                            onChangeText={(text) => updateFormData("km_inicial", text)}
-                                            keyboardType="numeric"
-                                        />
+                        {showForm ? (
+                            <View>
+                                {(motorista || veiculo) && (
+                                    <View style={styles.infoContainer}>
+                                        {motorista && (
+                                            <Text style={styles.infoText}>
+                                                <Text style={styles.infoLabel}>Motorista: </Text>
+                                                {profissional.nome}
+                                            </Text>
+                                        )}
+                                        {veiculo && (
+                                            <Text style={styles.infoText}>
+                                                <Text style={styles.infoLabel}>Veículo: </Text>
+                                                {veiculo.nome} - Placa: {veiculo.placa}
+                                            </Text>
+                                        )}
                                     </View>
+                                )}
 
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Local de saída *</Text>
-                                        <TextInput
-                                            placeholder="Local de saída"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.local_saida}
-                                            onChangeText={(text) => updateFormData("local_saida", text)}
-                                        />
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Destino *</Text>
-                                        <TextInput
-                                            placeholder="Destino"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.destino}
-                                            onChangeText={(text) => updateFormData("destino", text)}
-                                        />
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Objetivo da Viagem</Text>
-                                        <TextInput
-                                            placeholder="Objetivo da viagem"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.objetivo_viagem}
-                                            onChangeText={(text) => updateFormData("objetivo_viagem", text)}
-                                        />
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Nível do Combustível</Text>
-                                        <View style={styles.pickerContainer}>
-                                            <Picker
-                                                selectedValue={formData.nivel_combustivel}
-                                                onValueChange={(itemValue) => updateFormData("combustivel", itemValue)}
-                                                style={styles.picker}
-                                                itemStyle={styles.pickerItem}
-                                            >
-                                                <Picker.Item label="Selecione o Nível" value="" />
-                                                <Picker.Item label="1/4" value="1/4" />
-                                                <Picker.Item label="2/4" value="1/2" />
-                                                <Picker.Item label="3/4" value="3/4" />
-                                                <Picker.Item label="Cheio" value="Cheio" />
-                                            </Picker>
+                                {veiculo && (
+                                    <>
+                                        <View style={styles.fieldContainer}>
+                                            <Text style={styles.label}>Km inicial *</Text>
+                                            <TextInput
+                                                placeholder="Quilometragem inicial"
+                                                style={styles.input}
+                                                placeholderTextColor="grey"
+                                                value={formData.km_inicial}
+                                                onChangeText={(text) => updateFormData("km_inicial", text)}
+                                                keyboardType="numeric"
+                                            />
                                         </View>
-                                    </View>
 
-                                    <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarViagem} disabled={submitting}>
-                                        {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Viagem</Text>}
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </View>
-                    ) : (
-                        <View>
-                            <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
-                        </View>
-                    )}
-                </ScrollView>
-            )}
-        </SafeAreaView>
+                                        <View style={styles.fieldContainer}>
+                                            <Text style={styles.label}>Local de saída *</Text>
+                                            <TextInput
+                                                placeholder="Local de saída"
+                                                style={styles.input}
+                                                placeholderTextColor="grey"
+                                                value={formData.local_saida}
+                                                onChangeText={(text) => updateFormData("local_saida", text)}
+                                            />
+                                        </View>
+
+                                        <View style={styles.fieldContainer}>
+                                            <Text style={styles.label}>Destino *</Text>
+                                            <TextInput
+                                                placeholder="Destino"
+                                                style={styles.input}
+                                                placeholderTextColor="grey"
+                                                value={formData.destino}
+                                                onChangeText={(text) => updateFormData("destino", text)}
+                                            />
+                                        </View>
+
+                                        <View style={styles.fieldContainer}>
+                                            <Text style={styles.label}>Objetivo da Viagem</Text>
+                                            <TextInput
+                                                placeholder="Objetivo da viagem"
+                                                style={styles.input}
+                                                placeholderTextColor="grey"
+                                                value={formData.objetivo_viagem}
+                                                onChangeText={(text) => updateFormData("objetivo_viagem", text)}
+                                            />
+                                        </View>
+
+                                        <View style={styles.fieldContainer}>
+                                            <Text style={styles.label}>Nível do Combustível</Text>
+                                            <View style={styles.pickerContainer}>
+                                                <Picker
+                                                    selectedValue={formData.nivel_combustivel}
+                                                    onValueChange={(itemValue) => updateFormData("nivel_combustivel", itemValue)}
+                                                    style={styles.picker}
+                                                    itemStyle={styles.pickerItem}
+                                                >
+                                                    <Picker.Item label="Selecione o Nível" value="" />
+                                                    <Picker.Item label="1/4" value="1/4" />
+                                                    <Picker.Item label="2/4" value="1/2" />
+                                                    <Picker.Item label="3/4" value="3/4" />
+                                                    <Picker.Item label="Cheio" value="Cheio" />
+                                                </Picker>
+                                            </View>
+                                        </View>
+
+                                        <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarViagem} disabled={submitting}>
+                                            {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Viagem</Text>}
+                                        </TouchableOpacity>
+                                    </>
+                                )}
+                            </View>
+                        ) : (
+                            <View>
+                                <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
+                            </View>
+                        )}
+                    </ScrollView>
+                )}
+            </SafeAreaView>
+        </KeyboardAvoidingView>
     );
 }
 

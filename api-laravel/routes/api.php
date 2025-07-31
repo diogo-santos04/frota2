@@ -39,8 +39,10 @@ Route::post('/veiculo/placa', [VeiculoController::class, 'getVeiculoByPlaca']);
 //viagem
 Route::resource('/viagem', ViagemController::class);
 Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
+Route::post('/viagem/local_saida', [ViagemController::class, "viagemSaida"]);
 //viagem destino
 Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
+Route::post('/viagem/local_chegada', [ViagemController::class, "viagemDestinoChegada"]);
 //abastecimento
 Route::resource('/abastecimento', controller: AbastecimentoController::class);
 //vistoria
