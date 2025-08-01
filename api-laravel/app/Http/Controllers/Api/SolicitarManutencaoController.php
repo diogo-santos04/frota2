@@ -24,7 +24,7 @@ class SolicitarManutencaoController extends Controller
             'tipo_manutencao_id' => 'required',
             'data_solicitacao' => 'required',
             'nota' => 'nullable',
-            'foto' => 'nullable|max:2048',
+            'foto' => 'nullable',
             'status' => 'nullable',
         ]);
 

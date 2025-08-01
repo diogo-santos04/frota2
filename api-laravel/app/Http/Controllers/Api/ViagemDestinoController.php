@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ViagemDestino;
 use App\Models\Viagem;
+use App\Models\LocalChegada;
 
 class ViagemDestinoController extends Controller
 {

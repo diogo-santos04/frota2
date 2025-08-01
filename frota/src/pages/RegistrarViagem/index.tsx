@@ -11,6 +11,7 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { Picker } from "@react-native-picker/picker";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
+import { getLocalizacao } from "../../services/ViagemServices/useLocationService";
 
 interface Veiculo {
     id: number;
@@ -81,7 +82,7 @@ export default function RegistrarViagem() {
         if (!veiculo || !motorista) {
             Toast.show({
                 type: "error",
-                text1: "Escolha um veículo primeiro",
+                text1: "Escolha um veículo e um motorista",
             });
             return;
         }
@@ -101,12 +102,9 @@ export default function RegistrarViagem() {
                 veiculo_id: veiculo.id,
                 motorista_id: motorista.id,
             };
-            console.log(viagemData);
+
             const response = await api.post("viagem", viagemData);
-            Toast.show({
-                type: "success",
-                text1: "Viagem registrada com sucesso",
-            });
+            const viagem_id = response.data.id;
 
             setFormData({
                 km_inicial: "",
@@ -117,16 +115,41 @@ export default function RegistrarViagem() {
                 nota: "",
                 status: "",
             });
+
+            const enderecoCompleto = await getLocalizacao();
+
+            if (enderecoCompleto) {
+                const enderecoData = {
+                    viagem_id: viagem_id,
+                    cep: enderecoCompleto.cep,
+                    numero: enderecoCompleto.numero,
+                    bairro: enderecoCompleto.bairro,
+                    rua: enderecoCompleto.endereco, 
+                };
+
+                const saidaResponse = await api.post("viagem/local_saida", enderecoData);
+            } else {
+                console.warn("Não foi possível obter a localização de saída.");
+                Toast.show({
+                    type: "info",
+                    text1: "Viagem registrada, mas não foi possível obter a localização de saída.",
+                });
+            }
+
             setVeiculo(null);
             setShowViagem(true);
+
+            Toast.show({
+                type: "success",
+                text1: "Viagem registrada com sucesso",
+            });
+
             navigation.navigate("ViagensEmAndamento");
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    console.log("Detalhes do erro:", error.response.data);
-                }
+            if (axios.isAxiosError(error) && error.response) {
+                console.log("Erro da API:", error.response.data);
             }
-            console.log(error);
+            console.error(error);
             Toast.show({
                 type: "error",
                 text1: "Erro ao registrar viagem",

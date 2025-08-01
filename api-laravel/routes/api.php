@@ -42,7 +42,7 @@ Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
 Route::post('/viagem/local_saida', [ViagemController::class, "viagemSaida"]);
 //viagem destino
 Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
-Route::post('/viagem/local_chegada', [ViagemController::class, "viagemDestinoChegada"]);
+Route::post('/viagem_destino/local_chegada', [ViagemController::class, "viagemDestinoChegada"]);
 //abastecimento
 Route::resource('/abastecimento', controller: AbastecimentoController::class);
 //vistoria
