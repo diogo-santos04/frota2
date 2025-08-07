@@ -85,4 +85,12 @@ class ViagemController extends Controller
 
         return response()->json($saida, 201);
     }
+
+    public function getViagemSaida(Request $request){
+        $viagem_id = $request->input("viagem_id");
+
+        $viagem_saida = LocalSaida::where("viagem_id", $viagem_id)->first();
+
+        return response()->json($viagem_saida);
+    }
 }

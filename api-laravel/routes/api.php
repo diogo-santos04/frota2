@@ -40,6 +40,7 @@ Route::post('/veiculo/placa', [VeiculoController::class, 'getVeiculoByPlaca']);
 Route::resource('/viagem', ViagemController::class);
 Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
 Route::post('/viagem/local_saida', [ViagemController::class, "viagemSaida"]);
+Route::get('/viagem/local_saida/detalhes', [ViagemController::class, "getViagemSaida"]);
 //viagem destino
 Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
 Route::post('/viagem_destino/local_chegada', [ViagemController::class, "viagemDestinoChegada"]);

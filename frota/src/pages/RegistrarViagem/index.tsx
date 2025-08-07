@@ -106,16 +106,6 @@ export default function RegistrarViagem() {
             const response = await api.post("viagem", viagemData);
             const viagem_id = response.data.id;
 
-            setFormData({
-                km_inicial: "",
-                local_saida: "",
-                destino: "",
-                objetivo_viagem: "",
-                nivel_combustivel: "",
-                nota: "",
-                status: "",
-            });
-
             const enderecoCompleto = await getLocalizacao();
 
             if (enderecoCompleto) {
@@ -156,6 +146,15 @@ export default function RegistrarViagem() {
             });
         } finally {
             setSubmitting(false);
+             setFormData({
+                km_inicial: "",
+                local_saida: "",
+                destino: "",
+                objetivo_viagem: "",
+                nivel_combustivel: "",
+                nota: "",
+                status: "",
+            });
         }
     }
 

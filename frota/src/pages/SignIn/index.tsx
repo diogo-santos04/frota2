@@ -1,14 +1,7 @@
 import React, { useState, useContext } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    ActivityIndicator,
-    StatusBar,
-} from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, StatusBar } from "react-native";
 import { AuthContext } from "../../contexts/AuthContext";
+import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
 
 export default function SignIn() {
     const { signIn, loadingAuth } = useContext(AuthContext);
@@ -26,57 +19,34 @@ export default function SignIn() {
         <>
             <StatusBar backgroundColor="#2952CC" barStyle="light-content" />
             <View style={styles.container}>
-
                 <View style={styles.inputContainer}>
                     <View style={styles.headerContainer}>
+                        <FontAwesome6 style={styles.logo} color="#0B7EC8" name="car" size={20} />
                         <Text style={styles.title}>FROTA</Text>
                         <Text style={styles.subtitle}>Sistema de Gerenciamento de Frota</Text>
                     </View>
 
                     <View style={styles.fieldContainer}>
                         <Text style={styles.label}>Email</Text>
-                        <TextInput
-                            placeholder="Seu email registrado"
-                            autoCapitalize="none"
-                            style={styles.input}
-                            placeholderTextColor="grey"
-                            value={email}
-                            onChangeText={setEmail}
-                        />
+                        <TextInput placeholder="Seu email registrado" autoCapitalize="none" style={styles.input} placeholderTextColor="grey" value={email} onChangeText={setEmail} />
                     </View>
 
                     <View style={styles.fieldContainer}>
                         <Text style={styles.label}>Senha</Text>
-                        <TextInput
-                            placeholder="Sua senha"
-                            style={styles.input}
-                            secureTextEntry={true}
-                            placeholderTextColor="grey"
-                            value={password}
-                            onChangeText={setPassword}
-                        />
+                        <TextInput placeholder="Sua senha" style={styles.input} secureTextEntry={true} placeholderTextColor="grey" value={password} onChangeText={setPassword} />
                     </View>
 
-                    <TouchableOpacity 
-                        style={styles.forgotPasswordContainer}
-                        onPress={() => {}}
-                    >
+                    <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => {}}>
                         <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        {loadingAuth ? (
-                            <ActivityIndicator size={25} color="#FFF" />
-                        ) : (
-                            <Text style={styles.buttonText}>Entrar</Text>
-                        )}
-                    </TouchableOpacity>                  
+                        {loadingAuth ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Entrar</Text>}
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.footerContainer}>
-                    <Text style={styles.footerText}>
-                        © 2025 FROTA - Sistema de Gerenciamento de Frota Municipal
-                    </Text>
+                    <Text style={styles.footerText}>© 2025 FROTA - Sistema de Gerenciamento de Frota Municipal</Text>
                 </View>
             </View>
         </>
@@ -110,6 +80,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         alignItems: "center",
         marginBottom: 32,
+        justifyContent: "center"
     },
     title: {
         fontSize: 28,
@@ -117,6 +88,13 @@ const styles = StyleSheet.create({
         color: "#1a1a1a",
         marginBottom: 8,
         letterSpacing: 0.5,
+    },
+    logo: {
+        borderWidth: 2, 
+        borderColor: "#0B7EC8", 
+        borderRadius: 5,
+        padding: 8, 
+        fontSize: 24, 
     },
     subtitle: {
         fontSize: 14,
