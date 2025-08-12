@@ -65,44 +65,17 @@ export default function ViagensEmAndamento() {
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
-    const [selectedViagemId, setSelectedViagemId] = useState<number | null>(null);
-    const [localDetalhes, setLocalDetalhes] = useState<LocalSaida | null>(null);
-
     async function getViagens() {
         try {
             setLoading(true);
             const response = await api.get("/viagem", {
                 params: {
-                    motorista_id: motorista.id
-                }
+                    motorista_id: motorista.id,
+                },
             });
             setViagens(response.data.reverse());
         } catch (error) {
             console.log(error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function handleShowLocalSaida(viagemId: number) {
-        if (selectedViagemId === viagemId) {
-            setSelectedViagemId(null);
-            setLocalDetalhes(null);
-            return;
-        }
-
-        try {
-            // setLoading(true);
-            const response = await api.get<LocalSaida>("/viagem/local_saida/detalhes", {
-                params: {
-                    viagem_id: viagemId,
-                },
-            });
-            setLocalDetalhes(response.data);
-            setSelectedViagemId(viagemId);
-        } catch (error) {
-            console.log(error);
-            alert("Erro ao buscar o local de saída.");
         } finally {
             setLoading(false);
         }
@@ -119,8 +92,6 @@ export default function ViagensEmAndamento() {
     };
 
     const renderItem = ({ item }: { item: Viagem }) => {
-        const isSelected = selectedViagemId === item.id;
-        const showDetails = isSelected && localDetalhes;
 
         return (
             <View style={styles.viagemCard}>
@@ -137,75 +108,50 @@ export default function ViagensEmAndamento() {
                         </View>
                     </View>
 
-                    {showDetails ? (
-                        <View style={styles.detailsContainer}>
-                            <View style={styles.detailRow}>
-                                <Feather name="map-pin" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Rua:</Text>
-                                <Text style={styles.detailValue}>{localDetalhes.rua}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <Feather name="hash" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Número:</Text>
-                                <Text style={styles.detailValue}>{localDetalhes.numero}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <Feather name="map" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Bairro:</Text>
-                                <Text style={styles.detailValue}>{localDetalhes.bairro}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <Feather name="mail" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>CEP:</Text>
-                                <Text style={styles.detailValue}>{localDetalhes.cep}</Text>
-                            </View>
+                    <View style={styles.detailsContainer}>
+                        <View style={styles.detailRow}>
+                            <FontAwesome5 name="car" color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Veículo:</Text>
+                            <Text style={styles.detailValue}>{item.veiculo?.nome}</Text>
                         </View>
-                    ) : (
-                        <View style={styles.detailsContainer}>
-                            <View style={styles.detailRow}>
-                                <FontAwesome5 name="car" color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Veículo:</Text>
-                                <Text style={styles.detailValue}>{item.veiculo?.nome}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <MaterialCommunityIcons name="car-info" color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Placa:</Text>
-                                <Text style={styles.detailValue}>{item.veiculo?.placa}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <FontAwesome5 name="user" color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Motorista:</Text>
-                                <Text style={styles.detailValue}>{item.motorista?.profissional?.nome}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <Feather name="calendar" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Data:</Text>
-                                <Text style={styles.detailValue}>{formatarData(item.data_viagem)}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <MaterialIcons name="speed" size={18} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>KM Inicial:</Text>
-                                <Text style={styles.detailValue}>{item.km_inicial}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <Feather name="droplet" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Combustível:</Text>
-                                <Text style={styles.detailValue}>{item.nivel_combustivel}</Text>
-                            </View>
-                            <View style={styles.detailRow}>
-                                <FontAwesome5 name="bullseye" size={16} color="#1976D2" style={styles.icon} />
-                                <Text style={styles.detailLabel}>Objetivo:</Text>
-                                <Text style={styles.detailValue}>{item.objetivo_viagem}</Text>
-                            </View>
-                            {item.nota && (
-                                <View style={styles.detailRow}>
-                                    <Feather name="file-text" size={16} color="#1976D2" style={styles.icon} />
-                                    <Text style={styles.detailLabel}>Nota:</Text>
-                                    <Text style={styles.detailValue}>{item.nota}</Text>
-                                </View>
-                            )}
+                        <View style={styles.detailRow}>
+                            <MaterialCommunityIcons name="car-info" color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Placa:</Text>
+                            <Text style={styles.detailValue}>{item.veiculo?.placa}</Text>
                         </View>
-                    )}
+                        <View style={styles.detailRow}>
+                            <FontAwesome5 name="user" color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Motorista:</Text>
+                            <Text style={styles.detailValue}>{item.motorista?.profissional?.nome}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                            <Feather name="calendar" size={16} color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Data:</Text>
+                            <Text style={styles.detailValue}>{formatarData(item.data_viagem)}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                            <MaterialIcons name="speed" size={18} color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>KM Inicial:</Text>
+                            <Text style={styles.detailValue}>{item.km_inicial}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                            <Feather name="droplet" size={16} color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Combustível:</Text>
+                            <Text style={styles.detailValue}>{item.nivel_combustivel}</Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                            <FontAwesome5 name="bullseye" size={16} color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Objetivo:</Text>
+                            <Text style={styles.detailValue}>{item.objetivo_viagem}</Text>
+                        </View>
+                        {item.nota && (
+                            <View style={styles.detailRow}>
+                                <Feather name="file-text" size={16} color="#1976D2" style={styles.icon} />
+                                <Text style={styles.detailLabel}>Nota:</Text>
+                                <Text style={styles.detailValue}>{item.nota}</Text>
+                            </View>
+                        )}
+                    </View>
 
                     <View style={styles.cardFooter}>
                         <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id, formType: "finalizar" })}>
@@ -214,8 +160,8 @@ export default function ViagensEmAndamento() {
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id, formType: "cancelar" })}>
-                            <MaterialCommunityIcons name="cancel" size={16} color={isSelected ? "#1976D2" : "#F44336"} />
-                            <Text style={[styles.cardActionText, { color: isSelected ? "#1976D2" : "#F44336" }]}>Cancelar</Text>
+                            <MaterialCommunityIcons name="cancel" size={16} color={"#F44336"} />
+                            <Text style={[styles.cardActionText, { color: "#F44336" }]}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -280,5 +226,3 @@ export default function ViagensEmAndamento() {
         </SafeAreaView>
     );
 }
-
-
