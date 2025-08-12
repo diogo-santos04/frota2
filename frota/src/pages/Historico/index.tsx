@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "./styles";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface Profissional {
     user_id: number;
@@ -65,6 +66,7 @@ interface ViagemDestino {
 }
 
 export default function Historico() {
+    const { motorista } = useContext(AuthContext)
     const [viagemDestinos, setViagemDestinos] = useState<ViagemDestino[]>([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
@@ -72,7 +74,11 @@ export default function Historico() {
     async function getViagemDestinos() {
         try {
             setLoading(true);
-            const response = await api.get("/viagem_destino");
+            const response = await api.get("/viagem_destino", {
+                params:{
+                    motorista_id: motorista.id
+                }
+            });
             setViagemDestinos(response.data.reverse());
         } catch (error) {
             console.log(error);

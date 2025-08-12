@@ -1,0 +1,78 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#0B7EC8",
+    },
+    qrCodeScannerFullScreen: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "black",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000, 
+    },
+    header: {
+        backgroundColor: "#0B7EC8",
+        paddingBottom: 25,
+        paddingTop: 20,
+    },
+    headerContent: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 25,
+        paddingTop: 15,
+        position: "relative",
+    },
+    homeButton: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 25,
+        padding: 8,
+        position: "absolute",
+        left: 25,
+        top: 15,
+        zIndex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 45,
+        height: 45,
+    },
+    logoContainer: {
+        alignItems: "center",
+        marginBottom: 25,
+        flex: 1,
+    },
+    headerTitleContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        marginLeft: 40,
+        marginRight: 40,
+    },
+    logoText: {
+        fontSize: 28,
+        fontWeight: "bold",
+        color: "#FFFFFF",
+        letterSpacing: 2,
+    },
+    mainContent: {
+        flex: 1,
+        padding: 25,
+        backgroundColor: "#F5F5F5",
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        marginTop: -15,
+    },
+    formTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: 20,
+        color: "#333",
+    },
+});

@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "./styles";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface Profissional {
     user_id: number;
@@ -59,6 +60,7 @@ interface LocalSaida {
 }
 
 export default function ViagensEmAndamento() {
+    const { motorista } = useContext(AuthContext);
     const [viagens, setViagens] = useState<Viagem[]>([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
@@ -69,7 +71,11 @@ export default function ViagensEmAndamento() {
     async function getViagens() {
         try {
             setLoading(true);
-            const response = await api.get("/viagem");
+            const response = await api.get("/viagem", {
+                params: {
+                    motorista_id: motorista.id
+                }
+            });
             setViagens(response.data.reverse());
         } catch (error) {
             console.log(error);
@@ -202,14 +208,14 @@ export default function ViagensEmAndamento() {
                     )}
 
                     <View style={styles.cardFooter}>
-                        <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id })}>
+                        <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id, formType: "finalizar" })}>
                             <Feather name="check-circle" size={16} color="#28a745" />
                             <Text style={[styles.cardActionText, { color: "#28a745" }]}>Finalizar Viagem</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.cardAction} onPress={() => handleShowLocalSaida(item.id)}>
-                            <Feather name="map-pin" size={16} color={isSelected ? "#1976D2" : "#F44336"} />
-                            <Text style={[styles.cardActionText, { color: isSelected ? "#1976D2" : "#F44336" }]}>{isSelected ? "Ocultar Local" : "Local da Saida"}</Text>
+                        <TouchableOpacity style={styles.cardAction} onPress={() => navigation.navigate("FinalizarViagem", { viagem_id: item.id, formType: "cancelar" })}>
+                            <MaterialCommunityIcons name="cancel" size={16} color={isSelected ? "#1976D2" : "#F44336"} />
+                            <Text style={[styles.cardActionText, { color: isSelected ? "#1976D2" : "#F44336" }]}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

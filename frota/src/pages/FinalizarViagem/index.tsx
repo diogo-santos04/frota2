@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import Toast from "react-native-toast-message";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import axios from "axios";
 
 interface ViagemDestino {
     viagem_id: number;
@@ -22,6 +23,7 @@ interface ViagemDestino {
 type RouteDetailParams = {
     FinalizarViagem: {
         viagem_id: number;
+        formType: string;
     };
 };
 
@@ -52,7 +54,7 @@ export default function FinalizarViagem() {
         }));
     };
 
-    async function handleSubmit() {
+    async function finalizarViagem() {
         console.log(formData);
         setSubmitting(true);
         if (!formData.km_chegada) {
@@ -78,7 +80,7 @@ export default function FinalizarViagem() {
         const kmChegada = formData.km_chegada;
 
         const totalKm = kmChegada - kmSaida;
-        
+
         const updatedFormData = {
             ...formData,
             km_total: totalKm,
@@ -92,6 +94,38 @@ export default function FinalizarViagem() {
             });
             navigation.navigate("ViagensEmAndamento");
         } catch (error) {
+            console.log(error);
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    async function cancelarViagem() {
+        setSubmitting(true);
+
+        if (!formData.nota) {
+            Toast.show({
+                type: "error",
+                text1: "Explique o motivo do cancelamento",
+            });
+            setSubmitting(false);
+            return;
+        }
+        try {
+            const response = await api.post("viagem/cancelar", {
+                viagem_id: route.params.viagem_id,
+                nota: formData.nota,
+            });
+            console.log(response.data);
+            Toast.show({
+                type: "success",
+                text1: "Viagem cancelada com sucesso",
+            });
+            navigation.navigate("ViagensEmAndamento");
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                console.log("Erro da API:", error.response.data);
+            }
             console.log(error);
         } finally {
             setSubmitting(false);
@@ -136,36 +170,61 @@ export default function FinalizarViagem() {
             </View>
 
             <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.formTitle}>Finalizar viagem</Text>
+                {route.params.formType === "cancelar" ? (
+                    <View>
+                        <Text style={styles.formTitle}>Cancelar Viagem</Text>
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Km chegada *</Text>
-                    <TextInput
-                        keyboardType="numeric"
-                        placeholder="Km chegada"
-                        style={styles.input}
-                        placeholderTextColor="grey"
-                        value={formData.km_chegada.toString()}
-                        onChangeText={(text) => updateFormData("km_chegada", text === "" ? 0 : parseFloat(text))}
-                    />
-                </View>
+                        <View style={styles.fieldContainer}>
+                            <Text style={styles.label}>Motivo do cancelamento</Text>
+                            <TextInput
+                                placeholder="Escreva o motivo do cancelamento"
+                                style={[styles.input, styles.textArea]}
+                                placeholderTextColor="grey"
+                                multiline
+                                numberOfLines={4}
+                                value={formData.nota ? formData.nota : ""}
+                                onChangeText={(text) => updateFormData("nota", text)}
+                            />
+                        </View>
 
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Observações (Nota)</Text>
-                    <TextInput
-                        placeholder="Adicione observações"
-                        style={[styles.input, styles.textArea]}
-                        placeholderTextColor="grey"
-                        multiline
-                        numberOfLines={4}
-                        value={formData.nota ? formData.nota : ""}
-                        onChangeText={(text) => updateFormData("nota", text)}
-                    />
-                </View>
+                        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={cancelarViagem}>
+                            {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>Cancelar Viagem</Text>}
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <>
+                        <Text style={styles.formTitle}>Finalizar viagem</Text>
 
-                <TouchableOpacity style={[styles.button, styles.submitButton]} onPress={handleSubmit}>
-                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>Finalizar Viagem</Text>}
-                </TouchableOpacity>
+                        <View style={styles.fieldContainer}>
+                            <Text style={styles.label}>Km chegada *</Text>
+                            <TextInput
+                                keyboardType="numeric"
+                                placeholder="Km chegada"
+                                style={styles.input}
+                                placeholderTextColor="grey"
+                                value={formData.km_chegada.toString()}
+                                onChangeText={(text) => updateFormData("km_chegada", text === "" ? 0 : parseFloat(text))}
+                            />
+                        </View>
+
+                        <View style={styles.fieldContainer}>
+                            <Text style={styles.label}>Observações (Nota)</Text>
+                            <TextInput
+                                placeholder="Adicione observações"
+                                style={[styles.input, styles.textArea]}
+                                placeholderTextColor="grey"
+                                multiline
+                                numberOfLines={4}
+                                value={formData.nota ? formData.nota : ""}
+                                onChangeText={(text) => updateFormData("nota", text)}
+                            />
+                        </View>
+
+                        <TouchableOpacity style={[styles.button, styles.submitButton]} onPress={finalizarViagem}>
+                            {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={{ color: "#FFF", fontSize: 18, fontWeight: "bold" }}>Finalizar Viagem</Text>}
+                        </TouchableOpacity>
+                    </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -195,9 +254,9 @@ const styles = StyleSheet.create({
         color: "#FFFFFF",
         letterSpacing: 2,
     },
-     homeButton: {
+    homeButton: {
         backgroundColor: "#FFFFFF",
-        borderRadius: 25, 
+        borderRadius: 25,
         padding: 8,
         position: "absolute",
         left: 25,
@@ -205,7 +264,7 @@ const styles = StyleSheet.create({
         zIndex: 1,
         alignItems: "center",
         justifyContent: "center",
-        width: 45, 
+        width: 45,
         height: 45,
     },
     formTitle: {
@@ -270,6 +329,11 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         backgroundColor: "#28a745",
+        marginTop: 10,
+        marginBottom: 30,
+    },
+    cancelButton: {
+        backgroundColor: "#F44336",
         marginTop: 10,
         marginBottom: 30,
     },

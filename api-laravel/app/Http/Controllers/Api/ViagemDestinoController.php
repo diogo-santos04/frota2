@@ -12,13 +12,17 @@ use App\Models\LocalChegada;
 class ViagemDestinoController extends Controller
 {
     // GET /item
-    public function index()
+    public function index(Request $request)
     {
+        $motorista_id = $request->input("motorista_id");
+
         $viagemDestinos = ViagemDestino::with([
             'viagem',
             'viagem.veiculo',
             'viagem.motorista.profissional'
-        ])->get();
+        ])->whereHas('viagem.motorista', function ($query) use ($motorista_id) {
+            $query->where('id', $motorista_id);
+        })->get();
 
         return response()->json($viagemDestinos);
     }
@@ -71,7 +75,8 @@ class ViagemDestinoController extends Controller
         return response()->json($viagem_destino, 201);
     }
 
-    public function viagemDestinoChegada(Request $request){
+    public function viagemDestinoChegada(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'viagem_destino_id' => 'required',
             'cep' => 'required',

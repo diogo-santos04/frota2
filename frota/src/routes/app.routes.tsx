@@ -20,6 +20,7 @@ export type StackParamsList = {
     ViagensEmAndamento: undefined;
     FinalizarViagem: {
         viagem_id: number;
+        formType: string,
     };
     Historico: undefined;
     RegistrarAbastecimento: undefined;
