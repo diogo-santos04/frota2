@@ -1,5 +1,16 @@
-import React, { useContext, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, SafeAreaView, Image, Alert } from "react-native";
+import React, { useContext, useEffect, useRef } from "react";
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    TouchableOpacity, 
+    StatusBar, 
+    SafeAreaView, 
+    Alert,
+    Animated,
+    Dimensions,
+    ScrollView
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -8,13 +19,39 @@ import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
-import { styles } from "./styles";
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 const Menu = () => {
     const { user, signOut, profissional, motorista } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
+    
+    // Animation values
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(50)).current;
+    const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
     useEffect(() => {
+        // Start animations
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }),
+            Animated.timing(slideAnim, {
+                toValue: 0,
+                duration: 600,
+                useNativeDriver: true,
+            }),
+            Animated.timing(scaleAnim, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+            }),
+        ]).start();
+
         async function checkLocationStatus() {
             const isEnabled = await Location.hasServicesEnabledAsync();
             if (!isEnabled) {
@@ -36,34 +73,192 @@ const Menu = () => {
         checkLocationStatus();
     }, []);
 
+    const menuItems = [
+        {
+            id: 1,
+            title: "Registrar\nViagem",
+            icon: "add-road",
+            iconType: "MaterialIcons",
+            color: "#2196F3",
+            backgroundColor: "#E3F2FD",
+            gradientColors: ["#E3F2FD", "#BBDEFB"],
+            onPress: () => navigation.navigate("RegistrarViagem")
+        },
+        {
+            id: 2,
+            title: "Viagem em\nAndamento",
+            icon: "directions-car",
+            iconType: "MaterialIcons",
+            color: "#4CAF50",
+            backgroundColor: "#E8F5E8",
+            gradientColors: ["#E8F5E8", "#C8E6C9"],
+            onPress: () => navigation.navigate("ViagensEmAndamento")
+        },
+        {
+            id: 3,
+            title: "Solicitar\nAbastecimento",
+            icon: "local-gas-station",
+            iconType: "MaterialIcons",
+            color: "#FF9800",
+            backgroundColor: "#FFF3E0",
+            gradientColors: ["#FFF3E0", "#FFE0B2"],
+            onPress: () => navigation.navigate("RegistrarAbastecimento")
+        },
+        {
+            id: 4,
+            title: "Solicitar\nVistoria",
+            icon: "car-repair",
+            iconType: "MaterialIcons",
+            color: "#F44336",
+            backgroundColor: "#FFEBEE",
+            gradientColors: ["#FFEBEE", "#FFCDD2"],
+            onPress: () => navigation.navigate("RegistrarVistoria")
+        },
+        {
+            id: 5,
+            title: "Histórico",
+            icon: "history",
+            iconType: "MaterialIcons",
+            color: "#9C27B0",
+            backgroundColor: "#F3E5F5",
+            gradientColors: ["#F3E5F5", "#E1BEE7"],
+            onPress: () => navigation.navigate("Historico")
+        },
+        {
+            id: 6,
+            title: "Solicitar Manutenção",
+            icon: "car-wrench",
+            iconType: "MaterialCommunityIcons",
+            color: "#2196F3",
+            backgroundColor: "#E3F2FD",
+            gradientColors: ["#E3F2FD", "#BBDEFB"],
+            onPress: () => navigation.navigate("RegistrarManutencao")
+        }
+    ];
+
+    const AnimatedCard = ({ item, index }) => {
+        const cardAnim = useRef(new Animated.Value(0)).current;
+        const pressAnim = useRef(new Animated.Value(1)).current;
+
+        useEffect(() => {
+            Animated.timing(cardAnim, {
+                toValue: 1,
+                duration: 400,
+                delay: index * 100,
+                useNativeDriver: true,
+            }).start();
+        }, []);
+
+        const handlePressIn = () => {
+            Animated.spring(pressAnim, {
+                toValue: 0.95,
+                useNativeDriver: true,
+            }).start();
+        };
+
+        const handlePressOut = () => {
+            Animated.spring(pressAnim, {
+                toValue: 1,
+                useNativeDriver: true,
+            }).start();
+        };
+
+        const IconComponent = item.iconType === 'MaterialCommunityIcons' ? MaterialCommunityIcons : Icon;
+
+        return (
+            <Animated.View
+                style={[
+                    styles.cardContainer,
+                    {
+                        opacity: cardAnim,
+                        transform: [
+                            { scale: pressAnim },
+                            {
+                                translateY: cardAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [20, 0],
+                                }),
+                            },
+                        ],
+                    },
+                ]}
+            >
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={item.onPress}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    activeOpacity={0.9}
+                >
+                    <LinearGradient
+                        colors={item.gradientColors}
+                        style={styles.cardGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    >
+                        <View style={[styles.iconContainer, { backgroundColor: item.color + '20' }]}>
+                            <IconComponent name={item.icon} size={32} color={item.color} />
+                        </View>
+                        <Text style={[styles.cardText, { color: item.color }]}>{item.title}</Text>
+                    </LinearGradient>
+                </TouchableOpacity>
+            </Animated.View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar backgroundColor="#0B7EC8" barStyle="light-content" />
 
-            <View style={styles.header}>
-                <View style={styles.headerContent}>
+            <LinearGradient
+                colors={['#0B7EC8', '#1976D2', '#0D47A1']}
+                style={styles.header}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            >
+                <Animated.View 
+                    style={[
+                        styles.headerContent,
+                        {
+                            opacity: fadeAnim,
+                            transform: [{ translateY: slideAnim }]
+                        }
+                    ]}
+                >
                     <View style={styles.headerTop}>
                         <View style={styles.logoContainer}>
                             <Text style={styles.logoText}>FROTA</Text>
+                            <View style={styles.logoUnderline} />
                         </View>
                     </View>
 
                     <View style={styles.userInfo}>
                         <View style={styles.userAvatar}>
-                            <Icon name="person" size={36} color="#0B7EC8" />
+                            <LinearGradient
+                                colors={['#FFFFFF', '#F5F5F5']}
+                                style={styles.avatarGradient}
+                            >
+                                <Icon name="person" size={36} color="#0B7EC8" />
+                            </LinearGradient>
                         </View>
-                        <View style={{ flex: 1 }}>
+                        <View style={styles.userDetails}>
                             <Text style={styles.userName}>{user.nome}</Text>
-                            <Text style={styles.userRole}>MOTORISTA</Text>
+                            <View style={styles.userRoleContainer}>
+                                <Icon name="local-shipping" size={16} color="#E3F2FD" />
+                                <Text style={styles.userRole}>MOTORISTA</Text>
+                            </View>
                         </View>
                         <TouchableOpacity
                             style={styles.logoutButton}
-                            onPress={() => {
-                                signOut();
-                            }}
+                            onPress={signOut}
                         >
-                            <Icon name="logout" size={20} color="#FFFFFF" />
-                            <Text style={styles.logoutText}>SAIR</Text>
+                            <LinearGradient
+                                colors={['#FF5722', '#D84315']}
+                                style={styles.logoutGradient}
+                            >
+                                <Icon name="logout" size={18} color="#FFFFFF" />
+                                <Text style={styles.logoutText}>SAIR</Text>
+                            </LinearGradient>
                         </TouchableOpacity>
                     </View>
 
@@ -72,92 +267,219 @@ const Menu = () => {
                         <Text style={styles.userIdLabel}>MATRÍCULA</Text>
                         <Text style={styles.userId}>{profissional.matricula}</Text>
                     </View>
-                </View>
-            </View>
+                </Animated.View>
+            </LinearGradient>
 
-            <View style={styles.mainContent}>
-                <View style={[{ flex: 1 }]}>
-                    <View style={styles.cardRow}>
-                        <TouchableOpacity
-                            style={[styles.card, { backgroundColor: "#E3F2FD" }]}
-                            onPress={() => {
-                                navigation.navigate("RegistrarViagem");
-                            }}
-                        >
-                            <Icon name="add-road" size={40} color="#2196F3" />
-                            <Text style={styles.cardText}>Registrar{"\n"}Viagem</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.card, { backgroundColor: "#E8F5E8" }]}
-                            onPress={() => {
-                                navigation.navigate("ViagensEmAndamento");
-                            }}
-                        >
-                            <Icon name="directions-car" size={40} color="#4CAF50" />
-                            <Text style={styles.cardText}>Viagem em{"\n"}Andamento</Text>
-                        </TouchableOpacity>
+            <ScrollView 
+                style={styles.mainContent}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                <Animated.View 
+                    style={[
+                        styles.cardsContainer,
+                        {
+                            opacity: fadeAnim,
+                            transform: [{ scale: scaleAnim }]
+                        }
+                    ]}
+                >
+                    <View style={styles.welcomeSection}>
+                        <Text style={styles.welcomeText}>Bem-vindo de volta!</Text>
+                        <Text style={styles.welcomeSubtext}>Escolha uma opção para continuar</Text>
                     </View>
 
-                    <View style={styles.cardRow}>
-                        <TouchableOpacity
-                            style={[styles.card, { backgroundColor: "#FFF3E0" }]}
-                            onPress={() => {
-                                navigation.navigate("RegistrarAbastecimento");
-                            }}
-                        >
-                            <Icon name="local-gas-station" size={40} color="#FF9800" />
-                            <Text style={styles.cardText}>Solicitar{"\n"}Abastecimento</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.card, { backgroundColor: "#FFEBEE" }]}
-                            onPress={() => {
-                                navigation.navigate("RegistrarVistoria");
-                            }}
-                        >
-                            <MaterialIcons name="car-repair" size={40} color="#F44336" />
-                            <Text style={styles.cardText}>Solicitar {"\n"} Vistoria</Text>
-                        </TouchableOpacity>
-
-                        {/* <TouchableOpacity style={[styles.card, { backgroundColor: "#FFEBEE" }]} onPress={() => {navigation.navigate("GerarQrCode")}}>
-                            <MaterialCommunityIcons name="qrcode" size={40} color="#F44336" />
-                            <Text style={styles.cardText}>Gerar{"\n"}QR Code</Text>
-                        </TouchableOpacity> */}
+                    <View style={styles.gridContainer}>
+                        {menuItems.map((item, index) => (
+                            <AnimatedCard key={item.id} item={item} index={index} />
+                        ))}
                     </View>
-
-                    <View style={styles.cardRow}>
-                        <TouchableOpacity
-                            style={[styles.card, { backgroundColor: "#F3E5F5" }]}
-                            onPress={() => {
-                                navigation.navigate("Historico");
-                            }}
-                        >
-                            <Icon name="history" size={40} color="#9C27B0" />
-                            <Text style={styles.cardText}>Histórico</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.card, { backgroundColor: "#E3F2FD" }]}
-                            onPress={() => {
-                                navigation.navigate("RegistrarManutencao");
-                            }}
-                        >
-                            <MaterialCommunityIcons name="car-wrench" size={40} color="#2196F3" />
-                            <Text style={styles.cardText}>Solicitar{"\n"}Manutenção</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* <View style={styles.cardRow}>
-                        <TouchableOpacity style={[styles.card, { backgroundColor: "#F3E5F5" }]} onPress={() => {navigation.navigate("Geolocalizacao")}}>
-                            <Icon name="history" size={40} color="#9C27B0" />
-                            <Text style={styles.cardText}>Teste geolocalizacao</Text>
-                        </TouchableOpacity>
-                    </View> */}
-                </View>
-            </View>
+                </Animated.View>
+            </ScrollView>
         </SafeAreaView>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F8F9FA',
+    },
+    header: {
+        paddingTop: 20,
+        paddingBottom: 30,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+    },
+    headerContent: {
+        gap: 20,
+    },
+    headerTop: {
+        alignItems: 'center',
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    logoText: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        letterSpacing: 3,
+    },
+    logoUnderline: {
+        width: 60,
+        height: 3,
+        backgroundColor: '#FFFFFF',
+        marginTop: 5,
+        borderRadius: 2,
+    },
+    userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 15,
+    },
+    userAvatar: {
+        borderRadius: 25,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    avatarGradient: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    userDetails: {
+        flex: 1,
+    },
+    userName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        marginBottom: 4,
+    },
+    userRoleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    userRole: {
+        fontSize: 14,
+        color: '#E3F2FD',
+        fontWeight: '500',
+    },
+    logoutButton: {
+        borderRadius: 20,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    logoutGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20,
+        gap: 6,
+    },
+    logoutText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    userIdContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 15,
+    },
+    userIdLabel: {
+        color: '#E3F2FD',
+        fontSize: 12,
+        fontWeight: '500',
+    },
+    userId: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginLeft: 'auto',
+    },
+    mainContent: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingBottom: 20,
+    },
+    cardsContainer: {
+        paddingHorizontal: 20,
+        paddingTop: 25,
+    },
+    welcomeSection: {
+        marginBottom: 25,
+    },
+    welcomeText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#2C3E50',
+        marginBottom: 5,
+    },
+    welcomeSubtext: {
+        fontSize: 16,
+        color: '#7F8C8D',
+    },
+    gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: 15,
+    },
+    cardContainer: {
+        width: (width - 55) / 2,
+    },
+    card: {
+        borderRadius: 20,
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+    },
+    cardGradient: {
+        padding: 20,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 120,
+        gap: 12,
+    },
+    iconContainer: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cardText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        lineHeight: 18,
+    },
+});
 
 export default Menu;

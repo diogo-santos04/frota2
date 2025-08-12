@@ -50,15 +50,6 @@ interface Viagem {
     motorista?: Motorista;
 }
 
-interface LocalSaida {
-    id: string;
-    viagem_id: number;
-    cep: string;
-    numero: string;
-    bairro: string;
-    rua: string;
-}
-
 export default function ViagensEmAndamento() {
     const { motorista } = useContext(AuthContext);
     const [viagens, setViagens] = useState<Viagem[]>([]);
