@@ -1,16 +1,5 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TouchableOpacity, 
-    StatusBar, 
-    SafeAreaView, 
-    Alert,
-    Animated,
-    Dimensions,
-    ScrollView
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, SafeAreaView, Alert, Animated, Dimensions, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -19,21 +8,19 @@ import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const Menu = () => {
     const { user, signOut, profissional, motorista } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
-    
-    // Animation values
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(50)).current;
     const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
     useEffect(() => {
-        // Start animations
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -82,7 +69,7 @@ const Menu = () => {
             color: "#2196F3",
             backgroundColor: "#E3F2FD",
             gradientColors: ["#E3F2FD", "#BBDEFB"],
-            onPress: () => navigation.navigate("RegistrarViagem")
+            onPress: () => navigation.navigate("RegistrarViagem"),
         },
         {
             id: 2,
@@ -92,7 +79,7 @@ const Menu = () => {
             color: "#4CAF50",
             backgroundColor: "#E8F5E8",
             gradientColors: ["#E8F5E8", "#C8E6C9"],
-            onPress: () => navigation.navigate("ViagensEmAndamento")
+            onPress: () => navigation.navigate("ViagensEmAndamento"),
         },
         {
             id: 3,
@@ -102,17 +89,17 @@ const Menu = () => {
             color: "#FF9800",
             backgroundColor: "#FFF3E0",
             gradientColors: ["#FFF3E0", "#FFE0B2"],
-            onPress: () => navigation.navigate("RegistrarAbastecimento")
+            onPress: () => navigation.navigate("RegistrarAbastecimento"),
         },
         {
             id: 4,
-            title: "Solicitar\nVistoria",
+            title: "Realizar\nVistoria",
             icon: "car-repair",
             iconType: "MaterialIcons",
             color: "#F44336",
             backgroundColor: "#FFEBEE",
             gradientColors: ["#FFEBEE", "#FFCDD2"],
-            onPress: () => navigation.navigate("RegistrarVistoria")
+            onPress: () => navigation.navigate("RegistrarVistoria"),
         },
         {
             id: 5,
@@ -122,7 +109,7 @@ const Menu = () => {
             color: "#9C27B0",
             backgroundColor: "#F3E5F5",
             gradientColors: ["#F3E5F5", "#E1BEE7"],
-            onPress: () => navigation.navigate("Historico")
+            onPress: () => navigation.navigate("Historico"),
         },
         {
             id: 6,
@@ -132,8 +119,8 @@ const Menu = () => {
             color: "#2196F3",
             backgroundColor: "#E3F2FD",
             gradientColors: ["#E3F2FD", "#BBDEFB"],
-            onPress: () => navigation.navigate("RegistrarManutencao")
-        }
+            onPress: () => navigation.navigate("RegistrarManutencao"),
+        },
     ];
 
     const AnimatedCard = ({ item, index }) => {
@@ -163,7 +150,7 @@ const Menu = () => {
             }).start();
         };
 
-        const IconComponent = item.iconType === 'MaterialCommunityIcons' ? MaterialCommunityIcons : Icon;
+        const IconComponent = item.iconType === "MaterialCommunityIcons" ? MaterialCommunityIcons : Icon;
 
         return (
             <Animated.View
@@ -183,20 +170,9 @@ const Menu = () => {
                     },
                 ]}
             >
-                <TouchableOpacity
-                    style={styles.card}
-                    onPress={item.onPress}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                    activeOpacity={0.9}
-                >
-                    <LinearGradient
-                        colors={item.gradientColors}
-                        style={styles.cardGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        <View style={[styles.iconContainer, { backgroundColor: item.color + '20' }]}>
+                <TouchableOpacity style={styles.card} onPress={item.onPress} onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={0.9}>
+                    <LinearGradient colors={item.gradientColors} style={styles.cardGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+                        <View style={[styles.iconContainer, { backgroundColor: item.color + "20" }]}>
                             <IconComponent name={item.icon} size={32} color={item.color} />
                         </View>
                         <Text style={[styles.cardText, { color: item.color }]}>{item.title}</Text>
@@ -210,19 +186,14 @@ const Menu = () => {
         <SafeAreaView style={styles.container}>
             <StatusBar backgroundColor="#0B7EC8" barStyle="light-content" />
 
-            <LinearGradient
-                colors={['#0B7EC8', '#1976D2', '#0D47A1']}
-                style={styles.header}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-            >
-                <Animated.View 
+            <LinearGradient colors={["#0B7EC8", "#1976D2", "#0D47A1"]} style={styles.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+                <Animated.View
                     style={[
                         styles.headerContent,
                         {
                             opacity: fadeAnim,
-                            transform: [{ translateY: slideAnim }]
-                        }
+                            transform: [{ translateY: slideAnim }],
+                        },
                     ]}
                 >
                     <View style={styles.headerTop}>
@@ -234,10 +205,7 @@ const Menu = () => {
 
                     <View style={styles.userInfo}>
                         <View style={styles.userAvatar}>
-                            <LinearGradient
-                                colors={['#FFFFFF', '#F5F5F5']}
-                                style={styles.avatarGradient}
-                            >
+                            <LinearGradient colors={["#FFFFFF", "#F5F5F5"]} style={styles.avatarGradient}>
                                 <Icon name="person" size={36} color="#0B7EC8" />
                             </LinearGradient>
                         </View>
@@ -248,14 +216,8 @@ const Menu = () => {
                                 <Text style={styles.userRole}>MOTORISTA</Text>
                             </View>
                         </View>
-                        <TouchableOpacity
-                            style={styles.logoutButton}
-                            onPress={signOut}
-                        >
-                            <LinearGradient
-                                colors={['#FF5722', '#D84315']}
-                                style={styles.logoutGradient}
-                            >
+                        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
+                            <LinearGradient colors={["#FF5722", "#D84315"]} style={styles.logoutGradient}>
                                 <Icon name="logout" size={18} color="#FFFFFF" />
                                 <Text style={styles.logoutText}>SAIR</Text>
                             </LinearGradient>
@@ -270,18 +232,14 @@ const Menu = () => {
                 </Animated.View>
             </LinearGradient>
 
-            <ScrollView 
-                style={styles.mainContent}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                <Animated.View 
+            <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                <Animated.View
                     style={[
                         styles.cardsContainer,
                         {
                             opacity: fadeAnim,
-                            transform: [{ scale: scaleAnim }]
-                        }
+                            transform: [{ scale: scaleAnim }],
+                        },
                     ]}
                 >
                     <View style={styles.welcomeSection}>
@@ -303,7 +261,7 @@ const Menu = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: "#F8F9FA",
     },
     header: {
         paddingTop: 20,
@@ -312,7 +270,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 25,
         borderBottomRightRadius: 25,
         elevation: 8,
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 8,
@@ -321,33 +279,33 @@ const styles = StyleSheet.create({
         gap: 20,
     },
     headerTop: {
-        alignItems: 'center',
+        alignItems: "center",
     },
     logoContainer: {
-        alignItems: 'center',
+        alignItems: "center",
     },
     logoText: {
         fontSize: 28,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
+        fontWeight: "bold",
+        color: "#FFFFFF",
         letterSpacing: 3,
     },
     logoUnderline: {
         width: 60,
         height: 3,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: "#FFFFFF",
         marginTop: 5,
         borderRadius: 2,
     },
     userInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: 15,
     },
     userAvatar: {
         borderRadius: 25,
         elevation: 3,
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -356,68 +314,68 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     userDetails: {
         flex: 1,
     },
     userName: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
+        fontWeight: "bold",
+        color: "#FFFFFF",
         marginBottom: 4,
     },
     userRoleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: 6,
     },
     userRole: {
         fontSize: 14,
-        color: '#E3F2FD',
-        fontWeight: '500',
+        color: "#E3F2FD",
+        fontWeight: "500",
     },
     logoutButton: {
         borderRadius: 20,
         elevation: 2,
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
     },
     logoutGradient: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         paddingHorizontal: 15,
         paddingVertical: 8,
         borderRadius: 20,
         gap: 6,
     },
     logoutText: {
-        color: '#FFFFFF',
+        color: "#FFFFFF",
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     userIdContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: 8,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
         paddingHorizontal: 15,
         paddingVertical: 10,
         borderRadius: 15,
     },
     userIdLabel: {
-        color: '#E3F2FD',
+        color: "#E3F2FD",
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: "500",
     },
     userId: {
-        color: '#FFFFFF',
+        color: "#FFFFFF",
         fontSize: 14,
-        fontWeight: 'bold',
-        marginLeft: 'auto',
+        fontWeight: "bold",
+        marginLeft: "auto",
     },
     mainContent: {
         flex: 1,
@@ -434,18 +392,18 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: '#2C3E50',
+        fontWeight: "bold",
+        color: "#2C3E50",
         marginBottom: 5,
     },
     welcomeSubtext: {
         fontSize: 16,
-        color: '#7F8C8D',
+        color: "#7F8C8D",
     },
     gridContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
         gap: 15,
     },
     cardContainer: {
@@ -454,7 +412,7 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 20,
         elevation: 6,
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.15,
         shadowRadius: 8,
@@ -462,8 +420,8 @@ const styles = StyleSheet.create({
     cardGradient: {
         padding: 20,
         borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
         minHeight: 120,
         gap: 12,
     },
@@ -471,13 +429,13 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     cardText: {
         fontSize: 14,
-        fontWeight: 'bold',
-        textAlign: 'center',
+        fontWeight: "bold",
+        textAlign: "center",
         lineHeight: 18,
     },
 });

@@ -26,7 +26,7 @@ Route::post("/user", [AuthController::class, 'create']);
 Route::get("/user", [UserController::class, 'read']);
 //motorista
 Route::resource('/motorista', MotoristaController::class);
-Route::post('/motorista/dados',[ MotoristaController::class, "getMotorista"]);
+Route::post('/motorista/dados', [MotoristaController::class, "getMotorista"]);
 //profissional
 Route::resource('/profissional', ProfissionalController::class);
 Route::post('/profissional/detalhes', [ProfissionalController::class, "profissionalDetalhes"]);
@@ -49,6 +49,7 @@ Route::post('/viagem_destino/local_chegada', [ViagemController::class, "viagemDe
 Route::resource('/abastecimento', controller: AbastecimentoController::class);
 //vistoria
 Route::resource('/vistoria', controller: VistoriaController::class);
+Route::post('/vistoria/veiculo', [VistoriaController::class, "getVistoriaVeiculo"]);
 Route::resource('/vistoria_item', controller: VistoriaItemController::class);
 Route::resource('/item', controller: ItemController::class);
 //manutencao

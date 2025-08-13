@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, StatusBar, Animated, Dimensions, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, StatusBar, Animated, Dimensions, KeyboardAvoidingView, Platform, ScrollView, ViewStyle } from "react-native";
 import { AuthContext } from "../../contexts/AuthContext";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,16 +15,13 @@ export default function SignIn() {
     const [emailFocused, setEmailFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
 
-    // Animation refs
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(50)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
     const logoRotate = useRef(new Animated.Value(0)).current;
-    const floatingAnim1 = useRef(new Animated.Value(0)).current;
-    const floatingAnim2 = useRef(new Animated.Value(0)).current;
+
 
     useEffect(() => {
-        // Start entry animations
         Animated.parallel([
             Animated.timing(fadeAnim, {
                 toValue: 1,
@@ -44,7 +41,6 @@ export default function SignIn() {
             }),
         ]).start();
 
-        // Logo rotation animation
         Animated.loop(
             Animated.timing(logoRotate, {
                 toValue: 1,
@@ -53,42 +49,11 @@ export default function SignIn() {
             })
         ).start();
 
-        // Floating animations for background elements
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(floatingAnim1, {
-                    toValue: 1,
-                    duration: 3000,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(floatingAnim1, {
-                    toValue: 0,
-                    duration: 3000,
-                    useNativeDriver: true,
-                }),
-            ])
-        ).start();
-
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(floatingAnim2, {
-                    toValue: 1,
-                    duration: 4000,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(floatingAnim2, {
-                    toValue: 0,
-                    duration: 4000,
-                    useNativeDriver: true,
-                }),
-            ])
-        ).start();
     }, []);
 
     async function handleLogin() {
         if (email === "" || password === "") return;
 
-        // Button press animation
         Animated.sequence([
             Animated.timing(scaleAnim, {
                 toValue: 0.95,
@@ -110,38 +75,11 @@ export default function SignIn() {
         outputRange: ["0deg", "360deg"],
     });
 
-    const FloatingElement = ({ animValue, style }) => (
-        <Animated.View
-            style={[
-                styles.floatingElement,
-                style,
-                {
-                    transform: [
-                        {
-                            translateY: animValue.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [0, -20],
-                            }),
-                        },
-                    ],
-                    opacity: animValue.interpolate({
-                        inputRange: [0, 0.5, 1],
-                        outputRange: [0.3, 0.8, 0.3],
-                    }),
-                },
-            ]}
-        />
-    );
-
     return (
         <>
             <StatusBar backgroundColor="#0B7EC8" barStyle="light-content" />
             <LinearGradient colors={["#0B7EC8", "#1976D2", "#0D47A1", "#1A237E"]} style={styles.container} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-                {/* Floating background elements */}
-                <FloatingElement animValue={floatingAnim1} style={[styles.floatingElement, { top: "15%", left: "10%" }]} />
-                <FloatingElement animValue={floatingAnim2} style={[styles.floatingElement, { top: "70%", right: "15%", width: 80, height: 80 }]} />
-                <FloatingElement animValue={floatingAnim1} style={[styles.floatingElement, { top: "40%", right: "5%", width: 40, height: 40 }]} />
-
+             
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
                     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                         <Animated.View
@@ -220,12 +158,6 @@ export default function SignIn() {
                                         </View>
                                     </View>
 
-                                    <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => {}}>
-                                        <Text style={styles.forgotPasswordText}>
-                                            <MaterialIcons name="help-outline" size={14} color="#0B7EC8" /> Esqueceu a senha?
-                                        </Text>
-                                    </TouchableOpacity>
-
                                     <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loadingAuth}>
                                         <LinearGradient
                                             colors={loadingAuth ? ["#B0BEC5", "#90A4AE"] : ["#0B7EC8", "#1976D2", "#0D47A1"]}
@@ -257,8 +189,7 @@ export default function SignIn() {
                             ]}
                         >
                             <View style={styles.footerContent}>
-                                <MaterialIcons name="security" size={16} color="rgba(255, 255, 255, 0.8)" />
-                                <Text style={styles.footerText}>© 2025 FROTA - Sistema Seguro de Gerenciamento</Text>
+                                <Text style={styles.footerText}>2025 FROTA - Sistema de Gerenciamento de Frota</Text>
                             </View>
                         </Animated.View>
                     </ScrollView>

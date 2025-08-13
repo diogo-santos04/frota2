@@ -76,10 +76,11 @@ export default function ViagensEmAndamento() {
         getViagens();
     }, []);
 
-    const formatarData = (dataISO: string): string => {
-        const datePart = dataISO.split(" ")[0];
+   const formatarDataHora = (dataISO: string): string => {
+        const [datePart, timePart] = dataISO.split(" ");
         const [ano, mes, dia] = datePart.split("-");
-        return `${dia}/${mes}/${ano}`;
+        const [hora, minuto] = timePart ? timePart.split(":") : ["00", "00"];
+        return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
     };
 
     const renderItem = ({ item }: { item: Viagem }) => {
@@ -118,7 +119,7 @@ export default function ViagensEmAndamento() {
                         <View style={styles.detailRow}>
                             <Feather name="calendar" size={16} color="#1976D2" style={styles.icon} />
                             <Text style={styles.detailLabel}>Data:</Text>
-                            <Text style={styles.detailValue}>{formatarData(item.data_viagem)}</Text>
+                            <Text style={styles.detailValue}>{formatarDataHora(item.data_viagem)} </Text>
                         </View>
                         <View style={styles.detailRow}>
                             <MaterialIcons name="speed" size={18} color="#1976D2" style={styles.icon} />

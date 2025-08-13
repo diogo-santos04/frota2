@@ -61,4 +61,19 @@ class VistoriaController extends Controller
 
         return response()->json($vistoria, 201);
     }
+
+    public function getVistoriaVeiculo(Request $request)
+    {
+        $veiculo_id = $request->input("veiculo_id");
+
+        $vistoria = Vistoria::where("veiculo_id", $veiculo_id)->get();
+
+        if ($vistoria->isEmpty()) {
+            return response()->json([
+                'message' => 'Nenhuma vistoria encontrada para o veículo.',
+            ], 404);
+        }
+
+        return response()->json($vistoria);
+    }
 }

@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
         backgroundColor: "#0B7EC8",
     },
     qrCodeScannerFullScreen: {
-        position: 'absolute',
+        position: "absolute",
         top: 0,
         left: 0,
         right: 0,
@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
         backgroundColor: "black",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 1000, 
+        zIndex: 1000,
     },
     header: {
         backgroundColor: "#0B7EC8",
@@ -74,5 +74,56 @@ export const styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 20,
         color: "#333",
+    },
+    infoContainer: {
+        backgroundColor: "#E8F5E8",
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "#28a745",
+    },
+    infoText: {
+        fontSize: 14,
+        color: "#333",
+        marginBottom: 5,
+    },
+    infoLabel: {
+        fontWeight: "bold",
+        color: "#28a745",
+    },
+    button: {
+        backgroundColor: "#0B7EC8",
+        padding: 15,
+        borderRadius: 8,
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    buttonText: {
+        color: "#FFFFFF",
+        fontWeight: "bold",
+    },
+    subtitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
+        color: "#333",
+    },
+    vistoriaItem: {
+        backgroundColor: "#FFFFFF",
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: "#DDDDDD",
+    },
+    vistoriaText: {
+        fontSize: 14,
+        color: "#555",
+    },
+    noDataText: {
+        textAlign: "center",
+        marginTop: 20,
+        color: "#888",
     },
 });

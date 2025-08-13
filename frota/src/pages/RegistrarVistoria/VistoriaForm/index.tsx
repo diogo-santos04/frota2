@@ -284,7 +284,7 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                                 </View>
 
                                 <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={handleSubmit} disabled={submitting}>
-                                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Vistoria</Text>}
+                                    {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Realizar Vistoria</Text>}
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={[styles.button, styles.backButton, submitting && styles.buttonDisabled]} onPress={() => setShowForm2(false)} disabled={submitting}>
