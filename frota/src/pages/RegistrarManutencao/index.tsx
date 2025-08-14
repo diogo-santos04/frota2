@@ -1,12 +1,12 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image, FlatList } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome5, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { Picker } from "@react-native-picker/picker";
@@ -23,6 +23,15 @@ interface Veiculo {
     placa: string;
 }
 
+interface Profissional {
+    user_id: number;
+    nome: string;
+    cpf: string;
+    matricula: string;
+    celular: string;
+    codigo: string;
+}
+
 interface FormData {
     veiculo_id: string;
     motorista_id: string;
@@ -32,9 +41,33 @@ interface FormData {
     foto?: string;
 }
 
+interface Motorista {
+    id: number;
+    profissional_id: number;
+    user_id: number;
+    cnh: string;
+    validade: string;
+    categoria: string;
+    profissional?: Profissional;
+}
+
 interface TipoManutencao {
     id: number;
     nome: string;
+}
+
+interface Manutencao {
+    id: number;
+    veiculo_id: number;
+    motorista_id: number;
+    tipo_manutencao_id: number;
+    data_solicitacao: string;
+    nota: string;
+    foto: string;
+    status: string;
+    veiculo?: Veiculo;
+    motorista?: Motorista;
+    tipo_manutencao?: TipoManutencao;
 }
 
 export default function RegistrarManutencao() {
@@ -52,6 +85,8 @@ export default function RegistrarManutencao() {
     const [scannedData, setScannedData] = useState<string | null>(null);
     const [image, setImage] = useState<string | null>(null);
 
+    const [ultimasManutencoes, setUltimasManutencoes] = useState<Manutencao[]>([]);
+
     const [formData, setFormData] = useState({
         tipo_manutencao_id: "",
         data_solicitacao: "",
@@ -61,7 +96,7 @@ export default function RegistrarManutencao() {
 
     const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
         setVeiculo(selectedVeiculo);
-        setShowForm(true);
+        // setShowForm(false);
     };
 
     const handleQRCodeReadGlobal = (data: string) => {
@@ -89,6 +124,7 @@ export default function RegistrarManutencao() {
             [field]: value,
         }));
     };
+
     const handleDateChange = (event: any, selectedDate: Date | undefined) => {
         setShowDatePicker(null);
         if (selectedDate) {
@@ -162,6 +198,23 @@ export default function RegistrarManutencao() {
         }
     }
 
+    async function getVeiculosManutencao() {
+        if (!veiculo?.id) {
+            console.log("veiculo_id is not available yet.");
+            return;
+        }
+
+        try {
+            const response = await api.post("manutencao/veiculo", {
+                veiculo_id: veiculo.id,
+            });
+
+            setUltimasManutencoes(response.data.slice(-2).reverse());
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         async function getTiposManutencao() {
             try {
@@ -175,6 +228,150 @@ export default function RegistrarManutencao() {
 
         getTiposManutencao();
     }, []);
+
+    useEffect(() => {
+        if (veiculo) {
+            getVeiculosManutencao();
+        }
+    }, [veiculo]);
+
+    const formatarDataHora = (dataISO: string): string => {
+        const [datePart, timePart] = dataISO.split(" ");
+        const [ano, mes, dia] = datePart.split("-");
+        const [hora, minuto] = timePart ? timePart.split(":") : ["00", "00"];
+        return `${dia}/${mes}/${ano}`;
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Finalizado":
+                return "#28a745";
+            case "Pendente":
+                return "#ffc107";
+            case "Cancelado":
+                return "#dc3545";
+            default:
+                return "#6c757d";
+        }
+    };
+
+    const renderVistoriaItem = ({ item }: { item: Manutencao }) => (
+        <View style={styles.viagemCard}>
+            <View style={styles.cardGradient}>
+                <View style={styles.viagemHeader}>
+                    <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+                        <Text style={[styles.statusText, { color: "#FFFFFF" }]}>{item.status}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.detailsContainer}>
+                    <View style={styles.detailRow}>
+                        <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Feito pelo motorista:</Text>
+                        <Text style={styles.detailValue}>{item.motorista?.profissional?.nome}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Data da Mantuncao:</Text>
+                        <Text style={styles.detailValue}>{formatarDataHora(item.data_solicitacao)}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="car-arrow-left" size={18} color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Tipo da manutencao:</Text>
+                        <Text style={styles.detailValue}>{item.tipo_manutencao?.nome}</Text>
+                    </View>
+
+                    {item.nota && (
+                        <View style={styles.detailRow}>
+                            <Feather name="file-text" size={16} color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Nota:</Text>
+                            <Text style={styles.detailValue}>{item.nota}</Text>
+                        </View>
+                    )}
+                </View>
+            </View>
+        </View>
+    );
+
+    const renderMainContent = () => {
+        if (!veiculo) {
+            return (
+                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} bounces={true}>
+                    <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
+                </ScrollView>
+            );
+        }
+
+        if (showForm) {
+            return (
+                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} bounces={true}>
+                    <View style={styles.fieldContainer}>
+                        <Text style={styles.label}>Data da solicitacao *</Text>
+                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_solicitacao")}>
+                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{formData.data_solicitacao || "Selecione a Data"}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.fieldContainer}>
+                        <Text style={styles.label}>Tipo da Manutencao</Text>
+                        <View style={styles.pickerContainer}>
+                            <Picker
+                                selectedValue={formData.tipo_manutencao_id}
+                                onValueChange={(itemValue) => updateFormData("tipo_manutencao_id", itemValue)}
+                                style={styles.picker}
+                                itemStyle={styles.pickerItem}
+                            >
+                                <Picker.Item label="Selecione o Tipo da Manutenção" value="" />
+                                {tiposManutencao.map((tipo_manutencao) => (
+                                    <Picker.Item key={tipo_manutencao.id} label={tipo_manutencao.nome} value={tipo_manutencao.id} />
+                                ))}
+                            </Picker>
+                        </View>
+                    </View>
+
+                    <View style={styles.fieldContainer}>
+                        <Text style={styles.label}>Anexar Imagem (Opcional)</Text>
+                        <TouchableOpacity style={styles.input} onPress={pickImage}>
+                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{image ? "Imagem selecionada" : "Selecionar Imagem"}</Text>
+                        </TouchableOpacity>
+                        {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+                    </View>
+
+                    <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={handleRegistrarManutencao} disabled={submitting}>
+                        {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Manutenção</Text>}
+                    </TouchableOpacity>
+                </ScrollView>
+            );
+        }
+
+        return (
+            <View style={{ flex: 1 }}>
+                <View style={styles.infoContainer}>
+                    <Text style={styles.infoText}>
+                        <Text style={styles.infoLabel}>Veículo: </Text>
+                        {veiculo.nome} - Placa: {veiculo.placa}
+                    </Text>
+                </View>
+
+                <TouchableOpacity style={styles.button} onPress={() => setShowForm(true)}>
+                    <Text style={styles.buttonText}>Realizar manutencao neste veículo</Text>
+                </TouchableOpacity>
+
+                <FlatList
+                    style={styles.flatListContainer}
+                    data={ultimasManutencoes}
+                    renderItem={renderVistoriaItem}
+                    keyExtractor={(item) => String(item.id)}
+                    showsVerticalScrollIndicator={true}
+                    bounces={true}
+                    contentContainerStyle={styles.flatListContent}
+                    ListEmptyComponent={() => <Text style={styles.noDataText}>Nenhuma vistoria encontrada para este veículo.</Text>}
+                />
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -205,76 +402,10 @@ export default function RegistrarManutencao() {
             ) : (
                 <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
                     <Text style={styles.formTitle}>Solicitar Manutenção</Text>
-
-                    {showForm ? (
-                        <View>
-                            {(motorista || veiculo) && (
-                                <View style={styles.infoContainer}>
-                                    {motorista && (
-                                        <Text style={styles.infoText}>
-                                            <Text style={styles.infoLabel}>Motorista: </Text>
-                                            {profissional.nome}
-                                        </Text>
-                                    )}
-                                    {veiculo && (
-                                        <Text style={styles.infoText}>
-                                            <Text style={styles.infoLabel}>Veículo: </Text>
-                                            {veiculo.nome} - Placa: {veiculo.placa}
-                                        </Text>
-                                    )}
-                                </View>
-                            )}
-
-                            {veiculo && (
-                                <>
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Data da solicitacao *</Text>
-                                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_solicitacao")}>
-                                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{formData.data_solicitacao || "Selecione a Data"}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Tipo da Manutencao</Text>
-                                        <View style={styles.pickerContainer}>
-                                            <Picker
-                                                selectedValue={formData.tipo_manutencao_id}
-                                                onValueChange={(itemValue) => updateFormData("tipo_manutencao_id", itemValue)}
-                                                style={styles.picker}
-                                                itemStyle={styles.pickerItem}
-                                            >
-                                                <Picker.Item label="Selecione o Tipo da Manutenção" value="" />
-                                                {tiposManutencao.map((tipo_manutencao) => (
-                                                    <Picker.Item key={tipo_manutencao.id} label={tipo_manutencao.nome} value={tipo_manutencao.id} />
-                                                ))}
-                                            </Picker>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Anexar Imagem (Opcional)</Text>
-                                        <TouchableOpacity style={styles.input} onPress={pickImage}>
-                                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{image ? "Imagem selecionada" : "Selecionar Imagem"}</Text>
-                                        </TouchableOpacity>
-                                        {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
-                                    </View>
-
-                                    <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={handleRegistrarManutencao} disabled={submitting}>
-                                        {submitting ? <ActivityIndicator size={25} color="#FFF" /> : <Text style={styles.buttonText}>Registrar Manutenção</Text>}
-                                    </TouchableOpacity>
-                                </>
-                            )}
-                        </View>
-                    ) : (
-                        <View>
-                            <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
-                        </View>
-                    )}
+                    {renderMainContent()}
                 </ScrollView>
             )}
             {showDatePicker && <DateTimePicker value={new Date()} mode="date" display="default" onChange={handleDateChange} />}
         </SafeAreaView>
     );
 }
-
-

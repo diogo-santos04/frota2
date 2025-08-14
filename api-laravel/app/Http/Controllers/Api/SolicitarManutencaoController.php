@@ -35,7 +35,7 @@ class SolicitarManutencaoController extends Controller
             ], 400);
         }
 
-        $path = null; 
+        $path = null;
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('manutencao', 'public');
         }
@@ -46,10 +46,27 @@ class SolicitarManutencaoController extends Controller
             'tipo_manutencao_id' => $request->input('tipo_manutencao_id'),
             'data_solicitacao' => $request->input('data_solicitacao'),
             'nota' => $request->input('nota'),
-            'foto' => $path, 
+            'foto' => $path,
             'status' => $request->input('status'),
         ]);
 
         return response()->json($manutencao, 201);
+    }
+
+    public function getManutencaoVeiculo(Request $request)
+    {
+        $veiculo_id = $request->input("veiculo_id");
+
+        $manutencao = SolicitarManutencao::with("veiculo", "motorista.profissional", "tipo_manutencao")
+            ->where("veiculo_id", $veiculo_id)
+            ->get();
+
+        if ($manutencao->isEmpty()) {
+            return response()->json([
+                'message' => 'Nenhuma vistoria encontrada para o veículo.',
+            ], 404);
+        }
+
+        return response()->json($manutencao);
     }
 }

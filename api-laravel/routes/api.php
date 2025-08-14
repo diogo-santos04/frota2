@@ -55,3 +55,5 @@ Route::resource('/item', controller: ItemController::class);
 //manutencao
 Route::resource('/solicitar_manutencao', controller: SolicitarManutencaoController::class);
 Route::resource('/tipo_manutencao', controller: TipoManutencaoController::class);
+Route::post('/manutencao/veiculo', [SolicitarManutencaoController::class, "getManutencaoVeiculo"]);
+

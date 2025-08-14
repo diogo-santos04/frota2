@@ -81,8 +81,11 @@ export default function RegistrarViagem() {
             } else {
                 setViagemEmAberto(true);
                 setShowForm(false);
-                console.log("ja tem viagem ");
-                Alert.alert("Você já tem uma viagem em aberto, finalize-a.");
+                Toast.show({
+                    type: "error",
+                    text1: "Viagem pendente",
+                    text2: "Você ja tem uma viagem em aberto."
+                })
             }
         } catch (error) {
             console.log(error);

@@ -198,8 +198,8 @@ export default function ViagensEmAndamento() {
 
                 <View style={styles.mainContent}>
                     <View style={styles.welcomeSection}>
-                        <Text style={styles.sectionTitle}>Viagens registradas</Text>
-                        <Text style={styles.sectionSubtitle}>Acompanhe o status das viagens</Text>
+                        <Text style={styles.sectionTitle}>Viagem ativa</Text>
+                        <Text style={styles.sectionSubtitle}>Acompanhe o status da viagem ativa</Text>
                     </View>
                     {loading ? (
                         <LoadingComponent />

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, FlatList } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,7 +7,7 @@ import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import Toast from "react-native-toast-message";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome5, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import VistoriaForm from "./VistoriaForm";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
@@ -144,86 +144,159 @@ export default function RegistrarVistoria() {
             const response = await api.post("vistoria/veiculo", {
                 veiculo_id: veiculo.id,
             });
-            setLastVistorias(response.data.slice(0, 3));
+            setLastVistorias(response.data.slice(-2).reverse());
         } catch (error) {
             console.log("erro ao pegar ultimas vistorias: ", error);
         }
     }
 
+    const formatarDataHora = (dataISO: string): string => {
+        const [datePart, timePart] = dataISO.split(" ");
+        const [ano, mes, dia] = datePart.split("-");
+        const [hora, minuto] = timePart ? timePart.split(":") : ["00", "00"];
+        return `${dia}/${mes}/${ano}`;
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Finalizado":
+                return "#28a745";
+            case "Pendente":
+                return "#ffc107";
+            case "Cancelado":
+                return "#dc3545";
+            default:
+                return "#6c757d";
+        }
+    };
+
     const renderVistoriaItem = ({ item }: { item: Vistoria }) => (
-        <View style={styles.vistoriaItem}>
-            <Text style={styles.vistoriaText}>Data: {item.data_vistoria}</Text>
-            <Text style={styles.vistoriaText}>Data troca oleo: {item.data_troca_oleo}</Text>
-            <Text style={styles.vistoriaText}>KM: {item.km_vistoria}</Text>
-            <Text style={styles.vistoriaText}>Status: {item.status}</Text>
-            <Text style={styles.vistoriaText}>Pneu dianteiro: {item.pneu_dianteiro}</Text>
-            <Text style={styles.vistoriaText}>Pneu estepe: {item.pneu_estepe}</Text>
+        <View style={styles.viagemCard}>
+            <View style={styles.cardGradient}>
+                <View style={styles.viagemHeader}>
+                    <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+                        <Text style={[styles.statusText, { color: "#FFFFFF" }]}>{item.status}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.detailsContainer}>
+                    <View style={styles.detailRow}>
+                        <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Data da Vistoria:</Text>
+                        <Text style={styles.detailValue}>{formatarDataHora(item.data_vistoria)}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="car-arrow-left" size={17} color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Data da troca do oleo:</Text>
+                        <Text style={styles.detailValue}>{formatarDataHora(item.data_troca_oleo)}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="tire" size={17} color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Pneu dianteiro:</Text>
+                        <Text style={styles.detailValue}>{item.pneu_dianteiro}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="tire" size={17} color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Pneu traseiro:</Text>
+                        <Text style={styles.detailValue}>{item.pneu_traseiro}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                        <MaterialCommunityIcons name="tire" size={17} color="#1976D2" style={styles.icon} />
+                        <Text style={styles.detailLabel}>Pneu estepe:</Text>
+                        <Text style={styles.detailValue}>{item.pneu_estepe}</Text>
+                    </View>
+
+                    {item.nota && (
+                        <View style={styles.detailRow}>
+                            <Feather name="file-text" size={16} color="#1976D2" style={styles.icon} />
+                            <Text style={styles.detailLabel}>Nota:</Text>
+                            <Text style={styles.detailValue}>{item.nota}</Text>
+                        </View>
+                    )}
+                </View>
+            </View>
         </View>
     );
 
-    return (
-        <SafeAreaView style={styles.container}>
-            {showScannerGlobal ? (
-                <View style={styles.qrCodeScannerFullScreen}>
-                    <QRCodeScannerExpo onQRCodeRead={handleQRCodeReadGlobal} onCancel={() => setShowScannerGlobal(false)} />
+    const renderMainContent = () => {
+        if (!veiculo) {
+            return (
+                <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} bounces={true}>
+                    <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
+                </ScrollView>
+            );
+        }
+
+        if (showVistoriaForm) {
+            return (
+                <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} bounces={true}>
+                    <VistoriaForm veiculo={veiculo} motorista={motorista} profissional={profissional} onSubmit={handleRegistrarVistoria} submitting={submitting} />
+                </ScrollView>
+            );
+        }
+
+        return (
+            <View style={styles.contentContainer}>
+                <View style={styles.topScrollContainer}>
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.infoText}>
+                            <Text style={styles.infoLabel}>Veículo: </Text>
+                            {veiculo.nome} - Placa: {veiculo.placa}
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity style={styles.button} onPress={() => setShowVistoriaForm(true)}>
+                        <Text style={styles.buttonText}>Realizar vistoria neste veículo</Text>
+                    </TouchableOpacity>
+
+                    <Text style={styles.subtitle}>Últimas vistorias</Text>
                 </View>
-            ) : (
-                <>
-                    <View style={styles.header}>
-                        <View style={styles.headerContent}>
-                            <TouchableOpacity
-                                style={styles.homeButton}
-                                onPress={() => {
-                                    navigation.navigate("Menu");
-                                }}
-                            >
-                                <Feather name="home" size={20} color="#0B7EC8" />
-                            </TouchableOpacity>
-                            <View style={styles.logoContainer}>
-                                <Text style={styles.logoText}>FROTA</Text>
+
+                <FlatList
+                    style={styles.flatListContainer}
+                    data={lastVistorias}
+                    renderItem={renderVistoriaItem}
+                    keyExtractor={(item) => String(item.id)}
+                    showsVerticalScrollIndicator={true}
+                    bounces={true}
+                    contentContainerStyle={styles.flatListContent}
+                    ListEmptyComponent={() => <Text style={styles.noDataText}>Nenhuma vistoria encontrada para este veículo.</Text>}
+                />
+            </View>
+        );
+    };
+
+    return (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}>
+            <SafeAreaView style={styles.container}>
+                {showScannerGlobal ? (
+                    <View style={styles.qrCodeScannerFullScreen}>
+                        <QRCodeScannerExpo onQRCodeRead={handleQRCodeReadGlobal} onCancel={() => setShowScannerGlobal(false)} />
+                    </View>
+                ) : (
+                    <>
+                        <View style={styles.header}>
+                            <View style={styles.headerContent}>
+                                <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate("Menu")}>
+                                    <Feather name="home" size={20} color="#0B7EC8" />
+                                </TouchableOpacity>
+                                <View style={styles.logoContainer}>
+                                    <Text style={styles.logoText}>FROTA</Text>
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    <View style={styles.mainContent}>
-                        <Text style={styles.formTitle}>Realizar Vistoria</Text>
-
-                        {!veiculo ? (
-                            <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
-                        ) : showVistoriaForm ? (
-                            <VistoriaForm veiculo={veiculo} motorista={motorista} profissional={profissional} onSubmit={handleRegistrarVistoria} submitting={submitting} />
-                        ) : (
-                            <View>
-                                {(veiculo) && (
-                                    <View style={styles.infoContainer}>
-                                        {veiculo && (
-                                            <Text style={styles.infoText}>
-                                                <Text style={styles.infoLabel}>Veículo: </Text>
-                                                {veiculo.nome} - Placa: {veiculo.placa}
-                                            </Text>
-                                        )}
-                                    </View>
-                                )}
-                                <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={() => {
-                                        setShowVistoriaForm(true);
-                                    }}
-                                >
-                                    <Text style={styles.buttonText}>Realizar vistoria neste veículo</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.subtitle}>Últimas vistorias</Text>
-                                <FlatList
-                                    data={lastVistorias}
-                                    renderItem={renderVistoriaItem}
-                                    keyExtractor={(item) => String(item.id)}
-                                    ListEmptyComponent={() => <Text style={styles.noDataText}>Nenhuma vistoria encontrada para este veículo.</Text>}
-                                />
-                            </View>
-                        )}
-                    </View>
-                </>
-            )}
-        </SafeAreaView>
+                        <View style={styles.mainContent}>
+                            <Text style={styles.formTitle}>Realizar Vistoria</Text>
+                            {renderMainContent()}
+                        </View>
+                    </>
+                )}
+            </SafeAreaView>
+        </KeyboardAvoidingView>
     );
 }

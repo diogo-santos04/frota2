@@ -16,7 +16,7 @@ class SolicitarManutencao extends Model
         "status"
     ];
 
-    public function tipoManutencao(){
+    public function tipo_manutencao(){
         return $this->belongsTo(TipoManutencao::class);
     }
     
