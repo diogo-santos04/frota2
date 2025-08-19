@@ -136,4 +136,24 @@ export const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
+     pickerContainer: {
+        borderWidth: 2,
+        borderColor: "#3A3F5A",
+        borderRadius: 8,
+        backgroundColor: "white",
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    picker: {
+        width: "100%",
+        height: 50,
+        color: "#000",
+    },
+    pickerItem: {
+        fontSize: 16,
+    },
 });

@@ -242,37 +242,19 @@ export default function RegistrarManutencao() {
         return `${dia}/${mes}/${ano}`;
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "Finalizado":
-                return "#28a745";
-            case "Pendente":
-                return "#ffc107";
-            case "Cancelado":
-                return "#dc3545";
-            default:
-                return "#6c757d";
-        }
-    };
 
     const renderVistoriaItem = ({ item }: { item: Manutencao }) => (
         <View style={styles.viagemCard}>
             <View style={styles.cardGradient}>
-                <View style={styles.viagemHeader}>
-                    <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-                        <Text style={[styles.statusText, { color: "#FFFFFF" }]}>{item.status}</Text>
-                    </View>
-                </View>
-
                 <View style={styles.detailsContainer}>
                     <View style={styles.detailRow}>
                         <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
                         <Text style={styles.detailLabel}>Feito pelo motorista:</Text>
-                        <Text style={styles.detailValue}>{item.motorista?.profissional?.nome}</Text>
+                        <Text style={styles.detailValue}>{item.motorista?.profissional?.nome} - {item.status}</Text>
                     </View>
                     <View style={styles.detailRow}>
                         <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
-                        <Text style={styles.detailLabel}>Data da Mantuncao:</Text>
+                        <Text style={styles.detailLabel}>Data da Manutencao:</Text>
                         <Text style={styles.detailValue}>{formatarDataHora(item.data_solicitacao)}</Text>
                     </View>
 
@@ -400,10 +382,10 @@ export default function RegistrarManutencao() {
                     />
                 </View>
             ) : (
-                <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
+                <View style={styles.mainContent} >
                     <Text style={styles.formTitle}>Solicitar Manutenção</Text>
                     {renderMainContent()}
-                </ScrollView>
+                </View>
             )}
             {showDatePicker && <DateTimePicker value={new Date()} mode="date" display="default" onChange={handleDateChange} />}
         </SafeAreaView>

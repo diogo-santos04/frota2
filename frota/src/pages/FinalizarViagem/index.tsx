@@ -194,7 +194,12 @@ export default function FinalizarViagem() {
                 ) : (
                     <>
                         <Text style={styles.formTitle}>Finalizar viagem</Text>
-
+                        <View style={styles.infoContainer}>
+                            <Text style={styles.infoText}>
+                                <Text style={styles.infoLabel}>Km de saida: </Text>
+                                {formData.km_saida}
+                            </Text>
+                        </View>
                         <View style={styles.fieldContainer}>
                             <Text style={styles.label}>Km chegada *</Text>
                             <TextInput
@@ -336,5 +341,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#F44336",
         marginTop: 10,
         marginBottom: 30,
+    },
+    infoContainer: {
+        backgroundColor: "#E8F5E8",
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: "#28a745",
+    },
+    infoText: {
+        fontSize: 14,
+        color: "#333",
+    },
+    infoLabel: {
+        fontWeight: "bold",
+        color: "#28a745",
     },
 });

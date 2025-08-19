@@ -10,6 +10,20 @@ import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 import { LinearGradient } from "expo-linear-gradient";
 
+interface Item {
+    iconType: string;
+    icon: string;
+    gradientColors: string[];
+    onPress: () => void;
+    color: string;
+    title: string;
+}
+
+interface AnimatedCardProps {
+    item: Item;
+    index: number;
+}
+
 const { width } = Dimensions.get("window");
 
 const Menu = () => {
@@ -83,7 +97,7 @@ const Menu = () => {
         },
         {
             id: 3,
-            title: "Solicitar\nAbastecimento",
+            title: "Registrar\nAbastecimento",
             icon: "local-gas-station",
             iconType: "MaterialIcons",
             color: "#FF9800",
@@ -123,6 +137,7 @@ const Menu = () => {
         },
     ];
 
+    // @ts-expect-error
     const AnimatedCard = ({ item, index }) => {
         const cardAnim = useRef(new Animated.Value(0)).current;
         const pressAnim = useRef(new Animated.Value(1)).current;

@@ -141,8 +141,8 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "white",
-        textTransform: "uppercase",
         letterSpacing: 0.5,
+        textAlign: "center"
     },
     infoContainer: {
         backgroundColor: "#E8F5E8",

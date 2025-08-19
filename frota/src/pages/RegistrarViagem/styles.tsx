@@ -172,4 +172,12 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         zIndex: 1000,
     },
+    rowContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 0,
+    },
+    halfWidth: {
+        width: "48%",
+    },
 });

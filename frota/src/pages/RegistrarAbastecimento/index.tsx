@@ -10,6 +10,8 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { styles } from "./styles";
+import { format } from "date-fns";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface Veiculo {
     id: number;
@@ -30,6 +32,8 @@ export default function RegistrarAbastecimento() {
 
     const [showScanner, setShowScanner] = useState<boolean>(false);
     const [qrCodeData, setQrCodeData] = useState<Veiculo | null>(null);
+
+    const [showDatePicker, setShowDatePicker] = useState<"data_abastecimento" | null>(null);
 
     const handleQRCodeRead = (data: string) => {
         try {
@@ -63,7 +67,7 @@ export default function RegistrarAbastecimento() {
         return {
             veiculo_id: "",
             motorista_id: "",
-            data_abastecimento: dataDeHoje(),
+            data_abastecimento: "",
             km: "",
             litros: "",
             tipo: "",
@@ -115,6 +119,25 @@ export default function RegistrarAbastecimento() {
             return;
         }
 
+        if (formData.tipo === "") {
+            Toast.show({
+                type: "error",
+                text1: "Selecione o tipo de abastecimento",
+            });
+            return;
+        }
+
+        const litroAsNumber = parseFloat(formData.litros);
+
+        if (litroAsNumber >= 80) {
+            Toast.show({
+                text1: "Valor inválido para litros.",
+                text2: "Valor muito alto.",
+                type: "error",
+            });
+            return;
+        }
+
         try {
             setSubmitting(true);
             const abastecimentoData = {
@@ -158,23 +181,32 @@ export default function RegistrarAbastecimento() {
         }));
     };
 
+    const handleDateChange = (event: any, selectedDate: Date | undefined) => {
+        setShowDatePicker(null);
+        if (selectedDate) {
+            updateFormData(showDatePicker!, format(selectedDate, "dd/MM/yyyy"));
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerContent}>
-                    <TouchableOpacity
-                        style={styles.homeButton}
-                        onPress={() => {
-                            navigation.navigate("Menu");
-                        }}
-                    >
-                        <Feather name="home" size={20} color="#0B7EC8" />
-                    </TouchableOpacity>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.logoText}>FROTA</Text>
+            {!showScanner && (
+                <View style={styles.header}>
+                    <View style={styles.headerContent}>
+                        <TouchableOpacity
+                            style={styles.homeButton}
+                            onPress={() => {
+                                navigation.navigate("Menu");
+                            }}
+                        >
+                            <Feather name="home" size={20} color="#0B7EC8" />
+                        </TouchableOpacity>
+                        <View style={styles.logoContainer}>
+                            <Text style={styles.logoText}>FROTA</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
+            )}
 
             {showScanner ? (
                 <View style={styles.qrCodeScannerContainer}>
@@ -187,7 +219,7 @@ export default function RegistrarAbastecimento() {
                 </View>
             ) : (
                 <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
-                    <Text style={styles.formTitle}>Solicitar Abastecimento</Text>
+                    <Text style={styles.formTitle}>Registrar Abastecimento</Text>
 
                     {showForm ? (
                         <View>
@@ -211,15 +243,18 @@ export default function RegistrarAbastecimento() {
                             {veiculo && motorista && (
                                 <>
                                     <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Data do Pedido *</Text>
-                                        <TextInput
+                                        <Text style={styles.label}>Data do Registro *</Text>
+                                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_abastecimento")}>
+                                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{formData.data_abastecimento || "Selecione a Data"}</Text>
+                                        </TouchableOpacity>
+                                        {/* <TextInput
                                             placeholder="Ex: 2025-10-10"
                                             style={styles.input}
                                             placeholderTextColor="grey"
                                             value={formData.data_abastecimento}
                                             onChangeText={(text) => updateFormData("data_abastecimento", text)}
                                             keyboardType="numeric"
-                                        />
+                                        /> */}
                                     </View>
 
                                     <View style={styles.fieldContainer}>
@@ -247,14 +282,21 @@ export default function RegistrarAbastecimento() {
                                     </View>
 
                                     <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Tipo</Text>
-                                        <Picker style={styles.input} selectedValue={formData.tipo} onValueChange={(text) => updateFormData("tipo", text)}>
-                                            {!formData.tipo && <Picker.Item label="Selecione o tipo de combustível" value="" enabled={true} style={{ color: "grey" }} />}
-                                            <Picker.Item label="Alcool" value="alcool" />
-                                            <Picker.Item label="Gasolina" value="gasolina" />
-                                            <Picker.Item label="Etanol" value="etanol" />
-                                            <Picker.Item label="Eletrico" value="eletrico" />
-                                        </Picker>
+                                        <Text style={styles.label}>Tipo do Abastecimento</Text>
+                                        <View style={styles.pickerContainer}>
+                                            <Picker
+                                                selectedValue={formData.tipo}
+                                                onValueChange={(itemValue) => updateFormData("tipo", itemValue)}
+                                                style={styles.picker}
+                                                itemStyle={styles.pickerItem}
+                                            >
+                                                <Picker.Item label="Selecione o tipo de combustivel" value="" />
+                                                <Picker.Item label="Alcool" value="Ruim" />
+                                                <Picker.Item label="Gasolina" value="Regular" />
+                                                <Picker.Item label="Etanol" value="Bom" />
+                                                <Picker.Item label="Eletrico" value="Otimo" />
+                                            </Picker>
+                                        </View>
                                     </View>
 
                                     <TouchableOpacity style={[styles.button, styles.submitButton, submitting && styles.buttonDisabled]} onPress={registrarAbastecimento} disabled={submitting}>
@@ -296,8 +338,7 @@ export default function RegistrarAbastecimento() {
                     )}
                 </ScrollView>
             )}
+            {showDatePicker && <DateTimePicker value={new Date()} mode="date" display="default" onChange={handleDateChange} />}
         </SafeAreaView>
     );
 }
-
-

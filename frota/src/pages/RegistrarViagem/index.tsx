@@ -21,16 +21,6 @@ interface Veiculo {
     placa: string;
 }
 
-interface Motorista {
-    id: number;
-    profissional_id: number;
-    user_id: number;
-    nome: string;
-    cnh: string;
-    validade: Date;
-    categoria: string;
-}
-
 export default function RegistrarViagem() {
     const { user, motorista, profissional } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
@@ -84,8 +74,8 @@ export default function RegistrarViagem() {
                 Toast.show({
                     type: "error",
                     text1: "Viagem pendente",
-                    text2: "Você ja tem uma viagem em aberto."
-                })
+                    text2: "Você ja tem uma viagem em aberto.",
+                });
             }
         } catch (error) {
             console.log(error);
@@ -251,7 +241,7 @@ export default function RegistrarViagem() {
                                         )}
                                     </View>
                                 )}
-                                <View style={styles.fieldContainer}>
+                                {/* <View style={styles.fieldContainer}>
                                     <Text style={styles.label}>Km inicial *</Text>
                                     <TextInput
                                         placeholder="Quilometragem inicial"
@@ -261,7 +251,7 @@ export default function RegistrarViagem() {
                                         onChangeText={(text) => updateFormData("km_inicial", text)}
                                         keyboardType="numeric"
                                     />
-                                </View>
+                                </View> */}
 
                                 <View style={styles.fieldContainer}>
                                     <Text style={styles.label}>Local de saída *</Text>
@@ -296,21 +286,34 @@ export default function RegistrarViagem() {
                                     />
                                 </View>
 
-                                <View style={styles.fieldContainer}>
-                                    <Text style={styles.label}>Nível do Combustível</Text>
-                                    <View style={styles.pickerContainer}>
-                                        <Picker
-                                            selectedValue={formData.nivel_combustivel}
-                                            onValueChange={(itemValue) => updateFormData("nivel_combustivel", itemValue)}
-                                            style={styles.picker}
-                                            itemStyle={styles.pickerItem}
-                                        >
-                                            <Picker.Item label="Selecione o Nível" value="" />
-                                            <Picker.Item label="1/4" value="1/4" />
-                                            <Picker.Item label="2/4" value="1/2" />
-                                            <Picker.Item label="3/4" value="3/4" />
-                                            <Picker.Item label="Cheio" value="Cheio" />
-                                        </Picker>
+                                <View style={styles.rowContainer}>
+                                    <View style={[styles.fieldContainer, styles.halfWidth]}>
+                                        <Text style={styles.label}>Nível do Combustível</Text>
+                                        <View style={styles.pickerContainer}>
+                                            <Picker
+                                                selectedValue={formData.nivel_combustivel}
+                                                onValueChange={(itemValue) => updateFormData("nivel_combustivel", itemValue)}
+                                                style={styles.picker}
+                                                itemStyle={styles.pickerItem}
+                                            >
+                                                <Picker.Item label="Selecione" value="" />
+                                                <Picker.Item label="1/4" value="1/4" />
+                                                <Picker.Item label="2/4" value="1/2" />
+                                                <Picker.Item label="3/4" value="3/4" />
+                                                <Picker.Item label="Cheio" value="Cheio" />
+                                            </Picker>
+                                        </View>
+                                    </View>
+                                    <View style={[styles.fieldContainer, styles.halfWidth]}>
+                                        <Text style={styles.label}>Km inicial *</Text>
+                                        <TextInput
+                                            placeholder="Quilometragem inicial"
+                                            style={styles.input}
+                                            placeholderTextColor="grey"
+                                            value={formData.km_inicial}
+                                            onChangeText={(text) => updateFormData("km_inicial", text)}
+                                            keyboardType="numeric"
+                                        />
                                     </View>
                                 </View>
 
