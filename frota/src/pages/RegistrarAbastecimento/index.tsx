@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, Modal } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -12,12 +12,24 @@ import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { styles } from "./styles";
 import { format } from "date-fns";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { ModalPicker } from "../../components/ModalPicker";
 
 interface Veiculo {
     id: number;
     nome: string;
     marca: string;
     placa: string;
+}
+
+const combustivelOptions = [
+    { id: 1, nome: "Alcool" },
+    { id: 2, nome: "Gasolina" },
+    { id: 3, nome: "Etanol" },
+    { id: 4, nome: "Eletrico" },
+];
+
+interface Combustivel {
+    nome: string;
 }
 
 export default function RegistrarAbastecimento() {
@@ -34,6 +46,10 @@ export default function RegistrarAbastecimento() {
     const [qrCodeData, setQrCodeData] = useState<Veiculo | null>(null);
 
     const [showDatePicker, setShowDatePicker] = useState<"data_abastecimento" | null>(null);
+
+    const [modalCombustivel, setModalCombustivel] = useState(false);
+    const [combustivelSelected, setCombustivelSelected] = useState<Combustivel | undefined>();
+    const [combustivel, setCombustivel] = useState(combustivelOptions);
 
     const handleQRCodeRead = (data: string) => {
         try {
@@ -52,22 +68,13 @@ export default function RegistrarAbastecimento() {
         }
     };
 
-    function dataDeHoje() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const day = String(today.getDate()).padStart(2, "0");
-
-        const formattedDate = `${year}-${month}-${day}`;
-
-        return formattedDate;
-    }
+    const hoje = new Date().toISOString().split("T")[0];
 
     const [formData, setFormData] = useState(() => {
         return {
             veiculo_id: "",
             motorista_id: "",
-            data_abastecimento: "",
+            data_abastecimento: hoje,
             km: "",
             litros: "",
             tipo: "",
@@ -127,6 +134,8 @@ export default function RegistrarAbastecimento() {
             return;
         }
 
+        console.log("DATA DO ABASTECIMENTO: ", formData.data_abastecimento);
+
         const litroAsNumber = parseFloat(formData.litros);
 
         if (litroAsNumber >= 80) {
@@ -155,7 +164,7 @@ export default function RegistrarAbastecimento() {
             setFormData({
                 veiculo_id: "",
                 motorista_id: "",
-                data_abastecimento: "",
+                data_abastecimento: hoje,
                 km: "",
                 litros: "",
                 tipo: "",
@@ -188,8 +197,17 @@ export default function RegistrarAbastecimento() {
         }
     };
 
+    function handleChangeCombustivel(item: any) {
+        setCombustivelSelected(item);
+        setFormData((prev) => ({ ...prev, tipo: item.nome }));
+        setModalCombustivel(false);
+    }
+
     return (
         <SafeAreaView style={styles.container}>
+            <Modal transparent={true} visible={modalCombustivel} animationType="fade">
+                <ModalPicker handleCloseModal={() => setModalCombustivel(false)} options={combustivel} selectedItem={handleChangeCombustivel} title="Selecione o tipo de combustível" labelKey="nome" />
+            </Modal>
             {!showScanner && (
                 <View style={styles.header}>
                     <View style={styles.headerContent}>
@@ -243,21 +261,6 @@ export default function RegistrarAbastecimento() {
                             {veiculo && motorista && (
                                 <>
                                     <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Data do Registro *</Text>
-                                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_abastecimento")}>
-                                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{formData.data_abastecimento || "Selecione a Data"}</Text>
-                                        </TouchableOpacity>
-                                        {/* <TextInput
-                                            placeholder="Ex: 2025-10-10"
-                                            style={styles.input}
-                                            placeholderTextColor="grey"
-                                            value={formData.data_abastecimento}
-                                            onChangeText={(text) => updateFormData("data_abastecimento", text)}
-                                            keyboardType="numeric"
-                                        /> */}
-                                    </View>
-
-                                    <View style={styles.fieldContainer}>
                                         <Text style={styles.label}>Quilometragem *</Text>
                                         <TextInput
                                             placeholder="Ex: 10520"
@@ -282,20 +285,11 @@ export default function RegistrarAbastecimento() {
                                     </View>
 
                                     <View style={styles.fieldContainer}>
-                                        <Text style={styles.label}>Tipo do Abastecimento</Text>
-                                        <View style={styles.pickerContainer}>
-                                            <Picker
-                                                selectedValue={formData.tipo}
-                                                onValueChange={(itemValue) => updateFormData("tipo", itemValue)}
-                                                style={styles.picker}
-                                                itemStyle={styles.pickerItem}
-                                            >
-                                                <Picker.Item label="Selecione o tipo de combustivel" value="" />
-                                                <Picker.Item label="Alcool" value="Ruim" />
-                                                <Picker.Item label="Gasolina" value="Regular" />
-                                                <Picker.Item label="Etanol" value="Bom" />
-                                                <Picker.Item label="Eletrico" value="Otimo" />
-                                            </Picker>
+                                        <View style={[styles.fieldContainer, { width: "100%" }]}>
+                                            <Text style={styles.label}>Tipo do Abastecimento</Text>
+                                            <TouchableOpacity style={styles.pickerInput} onPress={() => setModalCombustivel(true)}>
+                                                <Text style={combustivelSelected?.nome ? styles.pickerText : styles.pickerPlaceholderText}>{combustivelSelected?.nome || "Selecione "}</Text>
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
 

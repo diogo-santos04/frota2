@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image, FlatList } from "react-native";
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Image, FlatList, Modal, TextInput } from "react-native";
 import { api } from "../../services/api";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -9,12 +9,12 @@ import Toast from "react-native-toast-message";
 import { Feather, FontAwesome5, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
-import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import * as ImagePicker from "expo-image-picker";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { styles } from "./styles";
+import { ModalPicker } from "../../components/ModalPicker"; 
 
 interface Veiculo {
     id: number;
@@ -86,17 +86,20 @@ export default function RegistrarManutencao() {
     const [image, setImage] = useState<string | null>(null);
 
     const [ultimasManutencoes, setUltimasManutencoes] = useState<Manutencao[]>([]);
+    const hoje = new Date().toISOString().split('T')[0];
 
     const [formData, setFormData] = useState({
         tipo_manutencao_id: "",
-        data_solicitacao: "",
+        data_solicitacao: hoje,
         foto: "",
         nota: "",
     });
 
+    const [modalTipoManutencao, setModalTipoManutencao] = useState(false);
+    const [tipoManutencaoSelected, setTipoManutencaoSelected] = useState<TipoManutencao | undefined>();
+
     const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
         setVeiculo(selectedVeiculo);
-        // setShowForm(false);
     };
 
     const handleQRCodeReadGlobal = (data: string) => {
@@ -156,7 +159,6 @@ export default function RegistrarManutencao() {
             formDataPayload.append("tipo_manutencao_id", formData.tipo_manutencao_id);
             formDataPayload.append("data_solicitacao", formData.data_solicitacao);
             formDataPayload.append("nota", formData.nota);
-            // formDataPayload.append("status", "Aberto");
 
             if (image) {
                 const localUri = image;
@@ -179,7 +181,7 @@ export default function RegistrarManutencao() {
 
             Toast.show({
                 type: "success",
-                text1: "Manutenção solicitada com sucesso !",
+                text1: "Manutenção solicitada com sucesso!",
             });
             navigation.navigate("Menu");
         } catch (error) {
@@ -235,13 +237,11 @@ export default function RegistrarManutencao() {
         }
     }, [veiculo]);
 
-    const formatarDataHora = (dataISO: string): string => {
-        const [datePart, timePart] = dataISO.split(" ");
-        const [ano, mes, dia] = datePart.split("-");
-        const [hora, minuto] = timePart ? timePart.split(":") : ["00", "00"];
-        return `${dia}/${mes}/${ano}`;
-    };
-
+    function handleChangeTipoManutencao(item: TipoManutencao) {
+        setTipoManutencaoSelected(item);
+        updateFormData("tipo_manutencao_id", String(item.id));
+        setModalTipoManutencao(false);
+    }
 
     const renderVistoriaItem = ({ item }: { item: Manutencao }) => (
         <View style={styles.viagemCard}>
@@ -251,11 +251,6 @@ export default function RegistrarManutencao() {
                         <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
                         <Text style={styles.detailLabel}>Feito pelo motorista:</Text>
                         <Text style={styles.detailValue}>{item.motorista?.profissional?.nome} - {item.status}</Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                        <FontAwesome5 name="calendar" color="#1976D2" style={styles.icon} />
-                        <Text style={styles.detailLabel}>Data da Manutencao:</Text>
-                        <Text style={styles.detailValue}>{formatarDataHora(item.data_solicitacao)}</Text>
                     </View>
 
                     <View style={styles.detailRow}>
@@ -289,27 +284,27 @@ export default function RegistrarManutencao() {
             return (
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} bounces={true}>
                     <View style={styles.fieldContainer}>
-                        <Text style={styles.label}>Data da solicitacao *</Text>
-                        <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_solicitacao")}>
-                            <Text style={{ color: "#000", fontSize: 16, marginTop: 12 }}>{formData.data_solicitacao || "Selecione a Data"}</Text>
+                        <Text style={styles.label}>Tipo da Manutenção</Text>
+                        <TouchableOpacity
+                            style={styles.pickerInput}
+                            onPress={() => setModalTipoManutencao(true)}
+                        >
+                            <Text style={tipoManutencaoSelected?.nome ? styles.pickerText : styles.pickerPlaceholderText}>
+                                {tipoManutencaoSelected?.nome || "Selecione o Tipo da Manutenção"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.fieldContainer}>
-                        <Text style={styles.label}>Tipo da Manutencao</Text>
-                        <View style={styles.pickerContainer}>
-                            <Picker
-                                selectedValue={formData.tipo_manutencao_id}
-                                onValueChange={(itemValue) => updateFormData("tipo_manutencao_id", itemValue)}
-                                style={styles.picker}
-                                itemStyle={styles.pickerItem}
-                            >
-                                <Picker.Item label="Selecione o Tipo da Manutenção" value="" />
-                                {tiposManutencao.map((tipo_manutencao) => (
-                                    <Picker.Item key={tipo_manutencao.id} label={tipo_manutencao.nome} value={tipo_manutencao.id} />
-                                ))}
-                            </Picker>
-                        </View>
+                        <Text style={styles.label}>Observações (Opcional)</Text>
+                        <TextInput 
+                            placeholder="Alguma nota adicional?"
+                            style={[styles.input, styles.textArea]}
+                            placeholderTextColor="grey"
+                            value={formData.nota}
+                            onChangeText={(text) => updateFormData("nota", text)}
+                            multiline
+                        />
                     </View>
 
                     <View style={styles.fieldContainer}>
@@ -337,7 +332,7 @@ export default function RegistrarManutencao() {
                 </View>
 
                 <TouchableOpacity style={styles.button} onPress={() => setShowForm(true)}>
-                    <Text style={styles.buttonText}>Realizar manutencao neste veículo</Text>
+                    <Text style={styles.buttonText}>Realizar manutenção neste veículo</Text>
                 </TouchableOpacity>
 
                 <FlatList
@@ -356,6 +351,16 @@ export default function RegistrarManutencao() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Modal transparent={true} visible={modalTipoManutencao} animationType="fade">
+                <ModalPicker
+                    handleCloseModal={() => setModalTipoManutencao(false)}
+                    options={tiposManutencao}
+                    selectedItem={handleChangeTipoManutencao}
+                    title="Selecione o Tipo da Manutenção"
+                    labelKey="nome"
+                />
+            </Modal>
+
             <View style={styles.header}>
                 <View style={styles.headerContent}>
                     <TouchableOpacity

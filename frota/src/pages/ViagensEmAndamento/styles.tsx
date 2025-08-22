@@ -22,6 +22,7 @@ export const styles = StyleSheet.create({
         paddingTop: 15,
         position: "relative",
     },
+    
     homeButton: {
         backgroundColor: "#FFFFFF",
         borderRadius: 25,

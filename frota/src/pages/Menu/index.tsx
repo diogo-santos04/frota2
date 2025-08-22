@@ -18,12 +18,6 @@ interface Item {
     color: string;
     title: string;
 }
-
-interface AnimatedCardProps {
-    item: Item;
-    index: number;
-}
-
 const { width } = Dimensions.get("window");
 
 const Menu = () => {

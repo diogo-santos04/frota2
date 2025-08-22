@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Modal } from "react-native";
 import Toast from "react-native-toast-message";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Feather } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { styles } from "./styles";
+import MaskInput from "react-native-mask-input";
+import { ModalPicker } from "../../../components/ModalPicker";
 
 interface Veiculo {
     id: number;
@@ -55,12 +56,42 @@ interface VistoriaFormProps {
     submitting: boolean;
 }
 
+interface Option {
+    id: number | string;
+    nome: string;
+}
+
+const combustivelOptions: Option[] = [
+    { id: 1, nome: "1/4" },
+    { id: 2, nome: "2/4" },
+    { id: 3, nome: "3/4" },
+    { id: 4, nome: "Cheio" },
+];
+
+const pneuOptions: Option[] = [
+    { id: "Ruim", nome: "Ruim" },
+    { id: "Regular", nome: "Regular" },
+    { id: "Bom", nome: "Bom" },
+    { id: "Otimo", nome: "Ótimo" },
+];
+
 export default function VistoriaForm({ veiculo, motorista, profissional, onSubmit, submitting }: VistoriaFormProps) {
     const [showForm2, setShowForm2] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState<"data_vistoria" | "data_troca_oleo" | null>(null);
 
+    const [modalCombustivel, setModalCombustivel] = useState(false);
+    const [combustivelSelected, setCombustivelSelected] = useState<Option | undefined>();
+    const [modalPneuDianteiro, setModalPneuDianteiro] = useState(false);
+    const [pneuDianteiroSelected, setPneuDianteiroSelected] = useState<Option | undefined>();
+    const [modalPneuTraseiro, setModalPneuTraseiro] = useState(false);
+    const [pneuTraseiroSelected, setPneuTraseiroSelected] = useState<Option | undefined>();
+    const [modalPneuEstepe, setModalPneuEstepe] = useState(false);
+    const [pneuEstepeSelected, setPneuEstepeSelected] = useState<Option | undefined>();
+
+    const hoje = new Date().toISOString().split("T")[0];
+
     const [formData, setFormData] = useState<FormData>({
-        data_vistoria: "",
+        data_vistoria: hoje,
         km_vistoria: "",
         km_troca_oleo: "",
         data_troca_oleo: "",
@@ -108,8 +139,71 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
         onSubmit(formData);
     };
 
+    function handleChangeCombustivel(item: Option) {
+        setCombustivelSelected(item);
+        setFormData((prev) => ({ ...prev, combustivel: item.nome }));
+        setModalCombustivel(false);
+    }
+
+    function handleChangePneuDianteiro(item: Option) {
+        setPneuDianteiroSelected(item);
+        setFormData((prev) => ({ ...prev, pneu_dianteiro: item.nome }));
+        setModalPneuDianteiro(false);
+    }
+
+    function handleChangePneuTraseiro(item: Option) {
+        setPneuTraseiroSelected(item);
+        setFormData((prev) => ({ ...prev, pneu_traseiro: item.nome }));
+        setModalPneuTraseiro(false);
+    }
+
+    function handleChangePneuEstepe(item: Option) {
+        setPneuEstepeSelected(item);
+        setFormData((prev) => ({ ...prev, pneu_estepe: item.nome }));
+        setModalPneuEstepe(false);
+    }
+
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Modals para os Pickers */}
+            <Modal transparent={true} visible={modalCombustivel} animationType="fade">
+                <ModalPicker
+                    handleCloseModal={() => setModalCombustivel(false)}
+                    options={combustivelOptions}
+                    selectedItem={handleChangeCombustivel}
+                    title="Selecione o nível de combustível"
+                    labelKey="nome"
+                />
+            </Modal>
+            <Modal transparent={true} visible={modalPneuDianteiro} animationType="fade">
+                <ModalPicker
+                    handleCloseModal={() => setModalPneuDianteiro(false)}
+                    options={pneuOptions}
+                    selectedItem={handleChangePneuDianteiro}
+                    title="Selecione a condição do pneu dianteiro"
+                    labelKey="nome"
+                />
+            </Modal>
+            <Modal transparent={true} visible={modalPneuTraseiro} animationType="fade">
+                <ModalPicker
+                    handleCloseModal={() => setModalPneuTraseiro(false)}
+                    options={pneuOptions}
+                    selectedItem={handleChangePneuTraseiro}
+                    title="Selecione a condição do pneu traseiro"
+                    labelKey="nome"
+                />
+            </Modal>
+            <Modal transparent={true} visible={modalPneuEstepe} animationType="fade">
+                <ModalPicker
+                    handleCloseModal={() => setModalPneuEstepe(false)}
+                    options={pneuOptions}
+                    selectedItem={handleChangePneuEstepe}
+                    title="Selecione a condição do pneu estepe"
+                    labelKey="nome"
+                />
+            </Modal>
+            {/* Fim dos Modals */}
+
             {(motorista || veiculo) && (
                 <View style={styles.infoContainer}>
                     {motorista && (
@@ -133,13 +227,6 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                         <>
                             <View style={styles.rowContainer}>
                                 <View style={[styles.fieldContainer, styles.halfWidth]}>
-                                    <Text style={styles.label}>Data Vistoria *</Text>
-                                    <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_vistoria")}>
-                                        <Text style={styles.inputText}>{formData.data_vistoria || "Selecione a Data"}</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View style={[styles.fieldContainer, styles.halfWidth]}>
                                     <Text style={styles.label}>Km Vistoria *</Text>
                                     <TextInput
                                         placeholder="Km Vistoria"
@@ -150,16 +237,6 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                                         keyboardType="numeric"
                                     />
                                 </View>
-                            </View>
-
-                            <View style={styles.rowContainer}>
-                                <View style={[styles.fieldContainer, styles.halfWidth]}>
-                                    <Text style={styles.label}>Data Troca do Óleo *</Text>
-                                    <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker("data_troca_oleo")}>
-                                        <Text style={styles.inputText}>{formData.data_troca_oleo || "Selecione a Data"}</Text>
-                                    </TouchableOpacity>
-                                </View>
-
                                 <View style={[styles.fieldContainer, styles.halfWidth]}>
                                     <Text style={styles.label}>Km Troca do Óleo *</Text>
                                     <TextInput
@@ -173,27 +250,33 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                                 </View>
                             </View>
 
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Nível de Combustível *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.combustivel}
-                                        onValueChange={(itemValue) => updateFormData("combustivel", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione o Nível" value="" />
-                                        <Picker.Item label="1/4" value="1/4" />
-                                        <Picker.Item label="2/4" value="1/2" />
-                                        <Picker.Item label="3/4" value="3/4" />
-                                        <Picker.Item label="Cheio" value="Cheio" />
-                                    </Picker>
+                            <View style={styles.rowContainer}>
+                                <View style={[styles.fieldContainer]}>
+                                    <Text style={styles.label}>Data Troca do Óleo *</Text>
+                                    <MaskInput
+                                        style={styles.input}
+                                        value={formData.data_troca_oleo}
+                                        onChangeText={(masked, unmasked) => {
+                                            updateFormData("data_troca_oleo", masked);
+                                        }}
+                                        mask={[/\d/, /\d/, "/", /\d/, /\d/, "/", /\d/, /\d/, /\d/, /\d/]}
+                                        placeholder="DD/MM/AAAA"
+                                        keyboardType="numeric"
+                                        placeholderTextColor="grey"
+                                    />
                                 </View>
+                            </View>
+
+                            <View style={styles.fieldContainer}>
+                                <Text style={styles.label}>Nível do Combustível</Text>
+                                <TouchableOpacity style={styles.pickerInput} onPress={() => setModalCombustivel(true)}>
+                                    <Text style={combustivelSelected?.nome ? styles.pickerText : styles.pickerPlaceholderText}>{combustivelSelected?.nome || "Selecione "}</Text>
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.rowContainer}>
                                 <View style={[styles.fieldContainer, styles.checkboxContainer]}>
-                                    <Text style={styles.label}>Documento *</Text>
+                                    <Text style={styles.label}>Documento</Text>
                                     <TouchableOpacity style={styles.checkbox} onPress={() => updateFormData("documento", !formData.documento)}>
                                         <Feather name={formData.documento ? "check-square" : "square"} size={24} color={formData.documento ? "#28a745" : "#333"} />
                                         <Text style={styles.checkboxLabel}>Em dia</Text>
@@ -201,7 +284,7 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                                 </View>
 
                                 <View style={[styles.fieldContainer, styles.checkboxContainer]}>
-                                    <Text style={styles.label}>Cartão Abastecimento *</Text>
+                                    <Text style={styles.label}>Cartão Abastecimento</Text>
                                     <TouchableOpacity style={styles.checkbox} onPress={() => updateFormData("cartao_abastecimento", !formData.cartao_abastecimento)}>
                                         <Feather name={formData.cartao_abastecimento ? "check-square" : "square"} size={24} color={formData.cartao_abastecimento ? "#28a745" : "#333"} />
                                         <Text style={styles.checkboxLabel}>Possuo</Text>
@@ -217,56 +300,23 @@ export default function VistoriaForm({ veiculo, motorista, profissional, onSubmi
                         <>
                             <View style={styles.fieldContainer}>
                                 <Text style={styles.label}>Pneu Dianteiro *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.pneu_dianteiro}
-                                        onValueChange={(itemValue) => updateFormData("pneu_dianteiro", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione a Condição" value="" />
-                                        <Picker.Item label="Ruim" value="Ruim" />
-                                        <Picker.Item label="Regular" value="Regular" />
-                                        <Picker.Item label="Bom" value="Bom" />
-                                        <Picker.Item label="Ótimo" value="Otimo" />
-                                    </Picker>
-                                </View>
+                                <TouchableOpacity style={styles.pickerInput} onPress={() => setModalPneuDianteiro(true)}>
+                                    <Text style={pneuDianteiroSelected?.nome ? styles.pickerText : styles.pickerPlaceholderText}>{pneuDianteiroSelected?.nome || "Selecione a Condição"}</Text>
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.fieldContainer}>
                                 <Text style={styles.label}>Pneu Traseiro *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.pneu_traseiro}
-                                        onValueChange={(itemValue) => updateFormData("pneu_traseiro", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione a Condição" value="" />
-                                        <Picker.Item label="Ruim" value="Ruim" />
-                                        <Picker.Item label="Regular" value="Regular" />
-                                        <Picker.Item label="Bom" value="Bom" />
-                                        <Picker.Item label="Ótimo" value="Otimo" />
-                                    </Picker>
-                                </View>
+                                <TouchableOpacity style={styles.pickerInput} onPress={() => setModalPneuTraseiro(true)}>
+                                    <Text style={pneuTraseiroSelected?.nome ? styles.pickerText : styles.pickerPlaceholderText}>{pneuTraseiroSelected?.nome || "Selecione a Condição"}</Text>
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.fieldContainer}>
                                 <Text style={styles.label}>Pneu Estepe *</Text>
-                                <View style={styles.pickerContainer}>
-                                    <Picker
-                                        selectedValue={formData.pneu_estepe}
-                                        onValueChange={(itemValue) => updateFormData("pneu_estepe", itemValue)}
-                                        style={styles.picker}
-                                        itemStyle={styles.pickerItem}
-                                    >
-                                        <Picker.Item label="Selecione a Condição" value="" />
-                                        <Picker.Item label="Ruim" value="Ruim" />
-                                        <Picker.Item label="Regular" value="Regular" />
-                                        <Picker.Item label="Bom" value="Bom" />
-                                        <Picker.Item label="Ótimo" value="Otimo" />
-                                    </Picker>
-                                </View>
+                                <TouchableOpacity style={styles.pickerInput} onPress={() => setModalPneuEstepe(true)}>
+                                    <Text style={pneuEstepeSelected?.nome ? styles.pickerText : styles.pickerPlaceholderText}>{pneuEstepeSelected?.nome || "Selecione a Condição"}</Text>
+                                </TouchableOpacity>
                             </View>
 
                             <View style={styles.fieldContainer}>

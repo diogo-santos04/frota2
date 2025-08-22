@@ -144,6 +144,32 @@ export const styles = StyleSheet.create({
         letterSpacing: 0.5,
         textAlign: "center"
     },
+    pickerInput: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        height: 50,
+        backgroundColor: "white",
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        borderWidth: 2,
+        borderColor: "#3A3F5A",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    pickerText: {
+        fontSize: 16,
+        color: "#000",
+    },
+    pickerPlaceholderText: {
+        fontSize: 16,
+        color: "#8a8a9a",
+    },
+   
     infoContainer: {
         backgroundColor: "#E8F5E8",
         padding: 15,
