@@ -6,7 +6,6 @@ import {
     TouchableOpacity,
     StatusBar,
     SafeAreaView,
-    Alert,
     Animated,
     Dimensions,
     ScrollView,
@@ -16,22 +15,20 @@ import {
     Modal,
     KeyboardAvoidingView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { AuthContext } from "../../contexts/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
-import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 import { LinearGradient } from "expo-linear-gradient";
 import ProcurarVeiculo from "../../components/ProcurarVeiculo";
-import { Picker } from "@react-native-picker/picker";
 import { api } from "../../services/api";
 import { getLocalizacao } from "../../services/ViagemServices/useLocationService";
 import axios from "axios";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { ModalPicker } from "../../components/ModalPicker";
+import { styles } from "./styles";
 
 interface Veiculo {
     id: number;
@@ -44,8 +41,6 @@ interface Combustivel {
     nome: string;
 }
 
-const { width } = Dimensions.get("window");
-
 const combustivelOptions = [
     { id: 1, nome: "1/4" },
     { id: 2, nome: "2/4" },
@@ -54,7 +49,7 @@ const combustivelOptions = [
 ];
 
 const RegistrarViagem = () => {
-    const { user, signOut, profissional, motorista } = useContext(AuthContext);
+    const { profissional, motorista } = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -74,8 +69,6 @@ const RegistrarViagem = () => {
     const [modalCombustivel, setModalCombustivel] = useState(false);
     const [combustivelSelected, setCombustivelSelected] = useState<Combustivel | undefined>();
     const [combustivel, setCombustivel] = useState(combustivelOptions);
-
-    const [viagemEmAberto, setViagemEmAberto] = useState(false);
 
     const [formData, setFormData] = useState({
         km_inicial: "",
@@ -133,10 +126,8 @@ const RegistrarViagem = () => {
             });
 
             if (response.data.length === 0) {
-                setViagemEmAberto(false);
                 setShowForm(true);
             } else {
-                setViagemEmAberto(true);
                 setShowForm(false);
                 Toast.show({
                     type: "error",
@@ -179,7 +170,7 @@ const RegistrarViagem = () => {
             });
             return;
         }
-
+ 
         if (!formData.km_inicial || !formData.local_saida || !formData.destino) {
             Toast.show({
                 type: "error",
@@ -195,6 +186,8 @@ const RegistrarViagem = () => {
                 veiculo_id: veiculo.id,
                 motorista_id: motorista.id,
             };
+
+            console.log(viagemData);
 
             const response = await api.post("viagem", viagemData);
             const viagem_id = response.data.id;
@@ -222,7 +215,7 @@ const RegistrarViagem = () => {
             setVeiculo(null);
             setShowViagem(true);
 
-            Toast.show({
+            Toast.show({    
                 type: "success",
                 text1: "Viagem registrada com sucesso",
             });
@@ -253,7 +246,7 @@ const RegistrarViagem = () => {
 
     function handleChangeCombustivel(item: any) {
         setCombustivelSelected(item);
-        setFormData((prev) => ({ ...prev, combustivel: item.nome }));
+        setFormData((prev) => ({ ...prev, nivel_combustivel: item.nome }));
         setModalCombustivel(false);
     }
 
@@ -410,328 +403,5 @@ const RegistrarViagem = () => {
         </KeyboardAvoidingView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#F8F9FA",
-    },
-    header: {
-        paddingTop: 40,
-        paddingBottom: 30,
-        paddingHorizontal: 20,
-        borderBottomLeftRadius: 25,
-        borderBottomRightRadius: 25,
-        elevation: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-    },
-    headerContent: {
-        gap: 20,
-    },
-    headerTop: {
-        alignItems: "center",
-    },
-    fieldContainer: {
-        width: "100%",
-        marginBottom: 20,
-    },
-    infoContainer: {
-        backgroundColor: "#E8F5E8",
-        padding: 15,
-        borderRadius: 8,
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: "#28a745",
-    },
-    homeButton: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 25,
-        padding: 8,
-        position: "absolute",
-        left: 10,
-        top: 5,
-        zIndex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        width: 45,
-        height: 45,
-    },
-    logoContainer: {
-        alignItems: "center",
-    },
-    button: {
-        width: "100%",
-        height: 50,
-        backgroundColor: "#0B7EC8",
-        borderRadius: 8,
-        justifyContent: "center",
-        alignItems: "center",
-        shadowColor: "#2952CC",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 6,
-        marginBottom: 20,
-    },
-    logoText: {
-        fontSize: 28,
-        fontWeight: "bold",
-        color: "#FFFFFF",
-        letterSpacing: 3,
-    },
-    infoLabel: {
-        fontWeight: "bold",
-        color: "#28a745",
-    },
-    logoUnderline: {
-        width: 60,
-        height: 3,
-        backgroundColor: "#FFFFFF",
-        marginTop: 5,
-        borderRadius: 2,
-    },
-    infoText: {
-        fontSize: 14,
-        color: "#333",
-        marginBottom: 5,
-    },
-    qrCodeScannerContainer: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "black",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-    },
-    rowContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 0,
-    },
-    userInfo: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 15,
-    },
-    userAvatar: {
-        borderRadius: 25,
-        elevation: 3,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    submitButton: {
-        backgroundColor: "#28a745",
-        marginTop: 10,
-        marginBottom: 30,
-    },
-    pickerContainer: {
-        borderWidth: 2,
-        borderColor: "#3A3F5A",
-        borderRadius: 8,
-        backgroundColor: "white",
-        overflow: "hidden",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 4,
-    },
-    picker: {
-        width: "100%",
-        height: 50,
-        color: "#000",
-    },
-    input: {
-        width: "100%",
-        height: 50,
-        backgroundColor: "white",
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        color: "#000",
-        fontSize: 16,
-        borderWidth: 2,
-        borderColor: "#3A3F5A",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 4,
-    },
-    pickerInput: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
-        height: 50,
-        backgroundColor: "white",
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        borderWidth: 2,
-        borderColor: "#3A3F5A",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 4,
-    },
-    pickerText: {
-        fontSize: 16,
-        color: "#000",
-    },
-    pickerPlaceholderText: {
-        fontSize: 16,
-        color: "#8a8a9a",
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: "500",
-        color: "#333",
-        marginBottom: 8,
-    },
-    buttonText: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "white",
-        textTransform: "uppercase",
-        letterSpacing: 0.5,
-    },
-    avatarGradient: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    userDetails: {
-        flex: 1,
-    },
-    userName: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#FFFFFF",
-        marginBottom: 4,
-    },
-    userRoleContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-    },
-    userRole: {
-        fontSize: 14,
-        color: "#E3F2FD",
-        fontWeight: "500",
-    },
-    logoutButton: {
-        borderRadius: 20,
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    logoutGradient: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 20,
-        gap: 6,
-    },
-    logoutText: {
-        color: "#FFFFFF",
-        fontSize: 12,
-        fontWeight: "bold",
-    },
-    userIdContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 15,
-    },
-    userIdLabel: {
-        color: "#E3F2FD",
-        fontSize: 12,
-        fontWeight: "500",
-    },
-    userId: {
-        color: "#FFFFFF",
-        fontSize: 14,
-        fontWeight: "bold",
-        marginLeft: "auto",
-    },
-    mainContent: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingBottom: 20,
-    },
-    cardsContainer: {
-        paddingHorizontal: 20,
-        paddingTop: 25,
-    },
-    welcomeSection: {
-        marginBottom: 25,
-    },
-    welcomeText: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#2C3E50",
-        marginBottom: 5,
-        textAlign: "center",
-    },
-    welcomeSubtext: {
-        fontSize: 16,
-        color: "#7F8C8D",
-    },
-    gridContainer: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        gap: 15,
-    },
-    cardContainer: {
-        width: (width - 55) / 2,
-    },
-    card: {
-        borderRadius: 20,
-        elevation: 6,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-    },
-    cardGradient: {
-        padding: 20,
-        borderRadius: 20,
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: 120,
-        gap: 12,
-    },
-    iconContainer: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    cardText: {
-        fontSize: 14,
-        fontWeight: "bold",
-        textAlign: "center",
-        lineHeight: 18,
-    },
-});
 
 export default RegistrarViagem;

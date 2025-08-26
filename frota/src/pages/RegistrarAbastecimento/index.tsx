@@ -303,7 +303,7 @@ export default function RegistrarAbastecimento() {
                         <View>
                             <View style={styles.fieldContainer}>
                                 <Text style={styles.label}>Digite a placa do veículo</Text>
-                                <TextInput placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
+                                <TextInput autoCapitalize="characters"  placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
                             </View>
 
                             <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={procurarVeiculo} disabled={loading}>

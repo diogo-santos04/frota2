@@ -62,6 +62,7 @@ export default function ProcurarVeiculo({ onVeiculoSelect, currentVehicle, onOpe
                     value={placaVeiculo}
                     onChangeText={setPlacaVeiculo}
                     editable={!loading}
+                    autoCapitalize="characters"
                 />
             </View>
 
