@@ -17,7 +17,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Este aplicativo precisa de acesso à sua câmera para ler códigos QR.",
         "NSMicrophoneUsageDescription": "Este aplicativo precisa de acesso ao seu microfone para gravar vídeos, se você for usar o microfone com a câmera."
-      }
+      },
+      "bundleIdentifier": "com.sesau.frota"
     },
     "android": {
       "adaptiveIcon": {
