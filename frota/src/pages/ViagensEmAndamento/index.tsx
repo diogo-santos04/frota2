@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator } from "react-native";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator, Animated } from "react-native";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "../../services/api";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,6 +7,8 @@ import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "./styles";
 import { AuthContext } from "../../contexts/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
+import Header from "../../components/UI/header";
 
 interface Profissional {
     user_id: number;
@@ -76,7 +78,7 @@ export default function ViagensEmAndamento() {
         getViagens();
     }, []);
 
-   const formatarDataHora = (dataISO: string): string => {
+    const formatarDataHora = (dataISO: string): string => {
         const [datePart, timePart] = dataISO.split(" ");
         const [ano, mes, dia] = datePart.split("-");
         const [hora, minuto] = timePart ? timePart.split(":") : ["00", "00"];
@@ -84,7 +86,6 @@ export default function ViagensEmAndamento() {
     };
 
     const renderItem = ({ item }: { item: Viagem }) => {
-
         return (
             <View style={styles.viagemCard}>
                 <View style={styles.cardGradient}>
@@ -177,43 +178,28 @@ export default function ViagensEmAndamento() {
     );
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#101026" />
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <TouchableOpacity
-                            style={styles.homeButton}
-                            onPress={() => {
-                                navigation.navigate("Menu");
-                            }}
-                        >
-                            <Feather name="home" size={20} color="#0B7EC8" />
-                        </TouchableOpacity>
-                        <View style={styles.logoContainer}>
-                            <Text style={styles.logoText}>FROTA</Text>
-                        </View>
-                    </View>
-                </View>
 
-                <View style={styles.mainContent}>
-                    <View style={styles.welcomeSection}>
-                        <Text style={styles.sectionTitle}>Viagem ativa</Text>
-                        <Text style={styles.sectionSubtitle}>Acompanhe o status da viagem ativa</Text>
-                    </View>
-                    {loading ? (
-                        <LoadingComponent />
-                    ) : (
-                        <FlatList
-                            data={viagens}
-                            renderItem={renderItem}
-                            keyExtractor={(item, index) => index.toString()}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={styles.listContent}
-                            ListEmptyComponent={EmptyListComponent}
-                        />
-                    )}
+            <Header />
+
+            <View style={styles.mainContent}>
+                <View style={styles.welcomeSection}>
+                    <Text style={styles.sectionTitle}>Viagem ativa</Text>
+                    <Text style={styles.sectionSubtitle}>Acompanhe o status da viagem ativa</Text>
                 </View>
+                {loading ? (
+                    <LoadingComponent />
+                ) : (
+                    <FlatList
+                        data={viagens}
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => index.toString()}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.listContent}
+                        ListEmptyComponent={EmptyListComponent}
+                    />
+                )}
             </View>
         </SafeAreaView>
     );

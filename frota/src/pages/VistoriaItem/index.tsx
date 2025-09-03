@@ -8,6 +8,7 @@ import Toast from "react-native-toast-message";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import { styles } from "./styles";
+import Header from "../../components/UI/header";
 
 interface Item {
     id: number;
@@ -135,21 +136,7 @@ export default function VistoriaItem() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerContent}>
-                    <TouchableOpacity
-                        style={styles.homeButton}
-                        onPress={() => {
-                            navigation.navigate("Menu");
-                        }}
-                    >
-                        <Feather name="home" size={20} color="#0B7EC8" />
-                    </TouchableOpacity>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.logoText}>FROTA</Text>
-                    </View>
-                </View>
-            </View>
+            <Header />
 
             <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
                 <Text style={styles.formTitle}>Assinale os itens que precisam de manutenção</Text>

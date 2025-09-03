@@ -7,6 +7,7 @@ import { StackParamsList } from "../../routes/app.routes";
 import Toast from "react-native-toast-message";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
+import Header from "../../components/UI/header";
 
 interface ViagemDestino {
     viagem_id: number;
@@ -153,21 +154,7 @@ export default function FinalizarViagem() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerContent}>
-                    <TouchableOpacity
-                        style={styles.homeButton}
-                        onPress={() => {
-                            navigation.navigate("Menu");
-                        }}
-                    >
-                        <Feather name="home" size={20} color="#0B7EC8" />
-                    </TouchableOpacity>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.logoText}>FROTA</Text>
-                    </View>
-                </View>
-            </View>
+            <Header />
 
             <ScrollView style={styles.mainContent} showsVerticalScrollIndicator={false}>
                 {route.params.formType === "cancelar" ? (
@@ -238,39 +225,7 @@ export default function FinalizarViagem() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0B7EC8",
-    },
-    header: {
-        backgroundColor: "#0B7EC8",
-        paddingBottom: 25,
-        paddingTop: 20,
-    },
-    headerContent: {
-        paddingHorizontal: 25,
-        paddingTop: 15,
-    },
-    logoContainer: {
-        alignItems: "center",
-        marginBottom: 25,
-    },
-    logoText: {
-        fontSize: 28,
-        fontWeight: "bold",
-        color: "#FFFFFF",
-        letterSpacing: 2,
-    },
-    homeButton: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 25,
-        padding: 8,
-        position: "absolute",
-        left: 25,
-        top: 15,
-        zIndex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        width: 45,
-        height: 45,
+        backgroundColor: "#FFFFF",
     },
     formTitle: {
         fontSize: 20,
@@ -281,11 +236,7 @@ const styles = StyleSheet.create({
     },
     mainContent: {
         flex: 1,
-        padding: 25,
-        backgroundColor: "#F5F5F5",
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
-        marginTop: -15,
+        padding: 20,
     },
     label: {
         fontSize: 14,

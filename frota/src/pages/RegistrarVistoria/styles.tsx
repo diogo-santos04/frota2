@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#0B7EC8",
+        backgroundColor: "#FFFFF",
     },
     qrCodeScannerFullScreen: {
         position: "absolute",
@@ -63,10 +63,6 @@ export const styles = StyleSheet.create({
     mainContent: {
         flex: 1,
         padding: 25,
-        backgroundColor: "#F5F5F5",
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
-        marginTop: -15,
     },
     formTitle: {
         fontSize: 20,

@@ -2,11 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity, StatusBar, ActivityIndicator } from "react-native";
 import { Feather, MaterialIcons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "../../services/api";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StackParamsList } from "../../routes/app.routes";
-import { useNavigation } from "@react-navigation/native";
 import { styles } from "./styles";
 import { AuthContext } from "../../contexts/AuthContext";
+import Header from "../../components/UI/header";
 
 interface Profissional {
     user_id: number;
@@ -69,7 +67,6 @@ export default function Historico() {
     const { motorista } = useContext(AuthContext)
     const [viagemDestinos, setViagemDestinos] = useState<ViagemDestino[]>([]);
     const [loading, setLoading] = useState(true);
-    const navigation = useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
     async function getViagemDestinos() {
         try {
@@ -98,19 +95,6 @@ export default function Historico() {
         return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
     };
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'Finalizado':
-                return '#28a745';
-            case 'Aberto':
-                return '#ffc107';
-            case 'Cancelado':
-                return '#dc3545';
-            default:
-                return '#6c757d';
-        }
-    };
-
     const renderItem = ({ item }: { item: ViagemDestino }) => {
         return (
             <View style={styles.viagemCard}>
@@ -122,7 +106,7 @@ export default function Historico() {
                                 {item.local_saida} → {item.local_destino}
                             </Text>
                         </View>
-                        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+                        <View style={[styles.statusBadge, { backgroundColor: "#28a745" }]}>
                             <Text style={[styles.statusText, { color: '#FFFFFF' }]}>{item.status}</Text>
                         </View>
                     </View>
@@ -178,18 +162,6 @@ export default function Historico() {
                             </View>
                         )}
                     </View>
-
-                    {/* <View style={styles.cardFooter}>
-                        <TouchableOpacity style={styles.cardAction}>
-                            <Feather name="eye" size={16} color="#0B7EC8" />
-                            <Text style={[styles.cardActionText, { color: "#0B7EC8" }]}>Ver Detalhes</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.cardAction}>
-                            <Feather name="download" size={16} color="#6c757d" />
-                            <Text style={[styles.cardActionText, { color: "#6c757d" }]}>Relatório</Text>
-                        </TouchableOpacity>
-                    </View> */}
                 </View>
             </View>
         );
@@ -214,21 +186,7 @@ export default function Historico() {
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle="light-content" backgroundColor="#101026" />
             <View style={styles.container}>
-                <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <TouchableOpacity
-                            style={styles.homeButton}
-                            onPress={() => {
-                                navigation.navigate("Menu");
-                            }}
-                        >
-                            <Feather name="home" size={20} color="#0B7EC8" />
-                        </TouchableOpacity>
-                        <View style={styles.logoContainer}>
-                            <Text style={styles.logoText}>FROTA</Text>
-                        </View>
-                    </View>
-                </View>
+                <Header />
 
                 <View style={styles.mainContent}>
                     <View style={styles.welcomeSection}>

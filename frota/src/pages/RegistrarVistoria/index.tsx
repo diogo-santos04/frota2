@@ -12,6 +12,7 @@ import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 import VistoriaForm from "./VistoriaForm";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { styles } from "./styles";
+import Header from "../../components/UI/header";
 
 interface Veiculo {
     id: number;
@@ -279,16 +280,7 @@ export default function RegistrarVistoria() {
                     </View>
                 ) : (
                     <>
-                        <View style={styles.header}>
-                            <View style={styles.headerContent}>
-                                <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate("Menu")}>
-                                    <Feather name="home" size={20} color="#0B7EC8" />
-                                </TouchableOpacity>
-                                <View style={styles.logoContainer}>
-                                    <Text style={styles.logoText}>FROTA</Text>
-                                </View>
-                            </View>
-                        </View>
+                        <Header />
 
                         <View style={styles.mainContent}>
                             <Text style={styles.formTitle}>Realizar Vistoria</Text>

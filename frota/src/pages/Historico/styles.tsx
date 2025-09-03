@@ -3,47 +3,11 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: "#101026",
+        backgroundColor: "#FFFFF",
     },
     container: {
         flex: 1,
-        backgroundColor: "#0B7EC8",
-    },
-    header: {
-        backgroundColor: "#0B7EC8",
-        paddingBottom: 25,
-        paddingTop: 20,
-    },
-    headerContent: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: 25,
-        paddingTop: 15,
-        position: "relative",
-    },
-    homeButton: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 25, 
-        padding: 8,
-        position: "absolute",
-        left: 25,
-        top: 15,
-        zIndex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        width: 45, 
-        height: 45,
-    },
-    logoContainer: {
-        alignItems: "center",
-        marginBottom: 25,
-    },
-    logoText: {
-        fontSize: 28,
-        fontWeight: "bold",
-        color: "#FFFFFF",
-        letterSpacing: 2,
+        backgroundColor: "#FFFF",
     },
     welcomeSection: {
         paddingHorizontal: 20,
@@ -63,11 +27,7 @@ export const styles = StyleSheet.create({
     },
     mainContent: {
         flex: 1,
-        padding: 25,
-        backgroundColor: "#F5F5F5",
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
-        marginTop: -15,
+        padding: 15,
     },
     listContent: {
         paddingHorizontal: 20,

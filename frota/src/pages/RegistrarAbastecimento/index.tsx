@@ -13,6 +13,7 @@ import { styles } from "./styles";
 import { format } from "date-fns";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { ModalPicker } from "../../components/ModalPicker";
+import Header from "../../components/UI/header";
 
 interface Veiculo {
     id: number;
@@ -209,21 +210,7 @@ export default function RegistrarAbastecimento() {
                 <ModalPicker handleCloseModal={() => setModalCombustivel(false)} options={combustivel} selectedItem={handleChangeCombustivel} title="Selecione o tipo de combustível" labelKey="nome" />
             </Modal>
             {!showScanner && (
-                <View style={styles.header}>
-                    <View style={styles.headerContent}>
-                        <TouchableOpacity
-                            style={styles.homeButton}
-                            onPress={() => {
-                                navigation.navigate("Menu");
-                            }}
-                        >
-                            <Feather name="home" size={20} color="#0B7EC8" />
-                        </TouchableOpacity>
-                        <View style={styles.logoContainer}>
-                            <Text style={styles.logoText}>FROTA</Text>
-                        </View>
-                    </View>
-                </View>
+                <Header />
             )}
 
             {showScanner ? (
