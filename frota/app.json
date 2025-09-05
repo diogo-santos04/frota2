@@ -13,12 +13,12 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSCameraUsageDescription": "Este aplicativo precisa de acesso à sua câmera para ler códigos QR.",
-        "NSMicrophoneUsageDescription": "Este aplicativo precisa de acesso ao seu microfone para gravar vídeos, se você for usar o microfone com a câmera."
-      },
-      "bundleIdentifier": "com.sesau.frota"
+       "supportsTablet": true,
+        "infoPlist": {
+          "NSCameraUsageDescription": "Este aplicativo precisa de acesso à sua câmera para ler códigos QR.",
+          "NSLocationWhenInUseUsageDescription": "O aplicativo Frota precisa da sua localização para registrar os dados da sua viagem."
+        },
+        "bundleIdentifier": "com.sesau.frota"
     },
     "android": {
       "adaptiveIcon": {
@@ -45,15 +45,13 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Permitir Frota utilizar a sua localização."
+          "locationAlwaysAndWhenInUsePermission": "O aplicativo Frota precisa da sua localização para registrar os dados da sua viagem."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Permitir Frota utilizar a sua camera.",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
+          "cameraPermission": "Este aplicativo precisa de acesso à sua câmera para ler códigos QR."
         }
       ],
       [

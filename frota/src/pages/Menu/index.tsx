@@ -50,7 +50,11 @@ const Menu = () => {
         async function checkLocationStatus() {
             const isEnabled = await Location.hasServicesEnabledAsync();
             if (!isEnabled) {
-                Alert.alert("Localização Desativada", "Por favor, ative os serviços de localização do seu celular para registrar as viagens corretamente.", [{ text: "OK" }]);
+                Toast.show({
+                    type: "error",
+                    text1: "Localização Desativada",
+                    text2: "Por favor, ative os serviços de localização do seu celular para registrar as viagens corretamente.",
+                });
                 return;
             }
 
