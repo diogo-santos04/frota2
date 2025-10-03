@@ -29,6 +29,7 @@ import axios from "axios";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { ModalPicker } from "../../components/ModalPicker";
 import { styles } from "./styles";
+import Header from "../../components/UI/header";
 
 interface Veiculo {
     id: number;
@@ -264,32 +265,7 @@ const RegistrarViagem = () => {
                 </Modal>
                 <StatusBar backgroundColor="#0B7EC8" barStyle="light-content" />
 
-                <LinearGradient colors={["#0B7EC8", "#1976D2", "#0D47A1"]} style={styles.header} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-                    <Animated.View
-                        style={[
-                            styles.headerContent,
-                            {
-                                opacity: fadeAnim,
-                                transform: [{ translateY: slideAnim }],
-                            },
-                        ]}
-                    >
-                        <TouchableOpacity
-                            style={styles.homeButton}
-                            onPress={() => {
-                                navigation.navigate("Menu");
-                            }}
-                        >
-                            <Feather name="home" size={20} color="#0B7EC8" />
-                        </TouchableOpacity>
-                        <View style={styles.headerTop}>
-                            <View style={styles.logoContainer}>
-                                <Text style={styles.logoText}>FROTA</Text>
-                                <View style={styles.logoUnderline} />
-                            </View>
-                        </View>
-                    </Animated.View>
-                </LinearGradient>
+               <Header />
 
                 {showScannerGlobal ? (
                     <View style={styles.qrCodeScannerContainer}>

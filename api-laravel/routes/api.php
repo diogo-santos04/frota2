@@ -37,11 +37,12 @@ Route::resource('/unidade_veiculo', UnidadeVeiculoController::class);
 Route::resource('/veiculo', VeiculoController::class);
 Route::post('/veiculo/placa', [VeiculoController::class, 'getVeiculoByPlaca']);
 //viagem
-Route::resource('/viagem', ViagemController::class);
 Route::post('/viagem/detalhes', [ViagemController::class, "viagemDetalhes"]);
 Route::post('/viagem/local_saida', [ViagemController::class, "viagemSaida"]);
 Route::post('/viagem/cancelar', [ViagemController::class, "cancelarViagem"]);
 Route::get('/viagem/local_saida/detalhes', [ViagemController::class, "getViagemSaida"]);
+Route::get('/viagem/ultimos-veiculo', [ViagemController::class, "ultimosVeiculos"]);
+Route::resource('/viagem', ViagemController::class);
 //viagem destino
 Route::resource('/viagem_destino', controller: ViagemDestinoController::class);
 Route::post('/viagem_destino/local_chegada', [ViagemController::class, "viagemDestinoChegada"]);

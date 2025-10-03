@@ -116,6 +116,27 @@ class ViagemController extends Controller
         }
 
         return response()->json($viagem, 201);
+    }
+
+    public function ultimosVeiculos(Request $request)
+    {
+        $motorista_id = $request->input("motorista_id");
+
+        $viagens = Viagem::with('veiculo')
+            ->where("motorista_id", $motorista_id)
+            ->whereNotNull('veiculo_id')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        $veiculosUnicos = $viagens
+            ->pluck('veiculo')
+            ->filter()
+            ->unique('id')
+            ->take(3)
+            ->values();
+
+        return response()->json($veiculosUnicos, 201);
 
     }
 }

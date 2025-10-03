@@ -6,14 +6,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
 import QRCodeScannerExpo from "../../components/QrCodeScanner";
 import { styles } from "./styles";
-import { format } from "date-fns";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { ModalPicker } from "../../components/ModalPicker";
 import Header from "../../components/UI/header";
+import ProcurarVeiculo from "../../components/ProcurarVeiculo";
 
 interface Veiculo {
     id: number;
@@ -39,35 +36,16 @@ export default function RegistrarAbastecimento() {
 
     const [placaVeiculo, setPlacaVeiculo] = useState("");
     const [veiculo, setVeiculo] = useState<Veiculo | null>(null);
-    const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
-
-    const [showScanner, setShowScanner] = useState<boolean>(false);
-    const [qrCodeData, setQrCodeData] = useState<Veiculo | null>(null);
-
-    const [showDatePicker, setShowDatePicker] = useState<"data_abastecimento" | null>(null);
 
     const [modalCombustivel, setModalCombustivel] = useState(false);
     const [combustivelSelected, setCombustivelSelected] = useState<Combustivel | undefined>();
     const [combustivel, setCombustivel] = useState(combustivelOptions);
 
-    const handleQRCodeRead = (data: string) => {
-        try {
-            const scannedVehicle: Veiculo = JSON.parse(data);
-            setQrCodeData(scannedVehicle);
-            setVeiculo(scannedVehicle);
-            setShowScanner(false);
-            setShowForm(true);
-        } catch (error) {
-            Toast.show({
-                type: "error",
-                text1: "Erro ao ler QR Code",
-                text2: "Dados inválidos do veículo.",
-            });
-            setShowScanner(false);
-        }
-    };
+    const [showScannerGlobal, setShowScannerGlobal] = useState<boolean>(false);
+    const [scannedData, setScannedData] = useState<string | null>(null);
+
 
     const hoje = new Date().toISOString().split("T")[0];
 
@@ -81,34 +59,6 @@ export default function RegistrarAbastecimento() {
             tipo: "",
         };
     });
-
-    async function procurarVeiculo() {
-        if (!placaVeiculo.trim()) {
-            Toast.show({
-                type: "error",
-                text1: "Por favor, digite o código do veículo",
-            });
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const response = await api.post("veiculo/placa", {
-                placa: placaVeiculo,
-            });
-
-            setVeiculo(response.data);
-            setShowForm(true);
-        } catch (error) {
-            console.log(error);
-            Toast.show({
-                type: "error",
-                text1: "Veículo não encontrado",
-            });
-        } finally {
-            setLoading(false);
-        }
-    }
 
     async function registrarAbastecimento() {
         if (!veiculo || !motorista) {
@@ -134,8 +84,6 @@ export default function RegistrarAbastecimento() {
             });
             return;
         }
-
-        console.log("DATA DO ABASTECIMENTO: ", formData.data_abastecimento);
 
         const litroAsNumber = parseFloat(formData.litros);
 
@@ -191,34 +139,49 @@ export default function RegistrarAbastecimento() {
         }));
     };
 
-    const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-        setShowDatePicker(null);
-        if (selectedDate) {
-            updateFormData(showDatePicker!, format(selectedDate, "dd/MM/yyyy"));
-        }
-    };
-
     function handleChangeCombustivel(item: any) {
         setCombustivelSelected(item);
         setFormData((prev) => ({ ...prev, tipo: item.nome }));
         setModalCombustivel(false);
     }
 
+    const handleVeiculoSelect = (selectedVeiculo: Veiculo) => {
+        setVeiculo(selectedVeiculo);
+        setShowForm(true);
+    };
+
+    const handleQRCodeReadGlobal = (data: string) => {
+        try {
+            const scannedVehicle: Veiculo = JSON.parse(data);
+            handleVeiculoSelect(scannedVehicle);
+            setShowScannerGlobal(false);
+            setScannedData(null);
+        } catch (error) {
+            Toast.show({
+                type: "error",
+                text1: "Erro ao ler QR Code",
+                text2: "Dados inválidos do veículo.",
+            });
+            setShowScannerGlobal(false);
+            setScannedData(null);
+        } finally {
+            setShowForm(true);
+        }
+    };
     return (
         <SafeAreaView style={styles.container}>
             <Modal transparent={true} visible={modalCombustivel} animationType="fade">
                 <ModalPicker handleCloseModal={() => setModalCombustivel(false)} options={combustivel} selectedItem={handleChangeCombustivel} title="Selecione o tipo de combustível" labelKey="nome" />
             </Modal>
-            {!showScanner && (
-                <Header />
-            )}
 
-            {showScanner ? (
+            <Header />
+
+            {showScannerGlobal ? (
                 <View style={styles.qrCodeScannerContainer}>
                     <QRCodeScannerExpo
-                        onQRCodeRead={handleQRCodeRead}
+                        onQRCodeRead={handleQRCodeReadGlobal}
                         onCancel={() => {
-                            setShowScanner(false);
+                            setShowScannerGlobal(false);
                         }}
                     />
                 </View>
@@ -288,38 +251,11 @@ export default function RegistrarAbastecimento() {
                         </View>
                     ) : (
                         <View>
-                            <View style={styles.fieldContainer}>
-                                <Text style={styles.label}>Digite a placa do veículo</Text>
-                                <TextInput autoCapitalize="characters"  placeholder="EX: ABC-1234" style={styles.input} placeholderTextColor="grey" value={placaVeiculo} onChangeText={setPlacaVeiculo} editable={!loading} />
-                            </View>
-
-                            <TouchableOpacity style={[styles.button, loading && styles.buttonDisabled]} onPress={procurarVeiculo} disabled={loading}>
-                                {loading ? (
-                                    <ActivityIndicator size={25} color="#FFF" />
-                                ) : (
-                                    <Text style={styles.buttonText}>
-                                        Procurar <Feather size={15} name="search" />{" "}
-                                    </Text>
-                                )}
-                            </TouchableOpacity>
-                            <Text style={{ justifyContent: "center", textAlign: "center", marginBottom: 15, fontSize: 15, fontWeight: "bold" }}>OU</Text>
-
-                            <TouchableOpacity
-                                style={[styles.button, loading && styles.buttonDisabled]}
-                                onPress={() => {
-                                    setShowScanner(true);
-                                }}
-                                disabled={loading}
-                            >
-                                <Text style={styles.buttonText}>
-                                    Procurar por codigo QR <MaterialCommunityIcons size={15} name="qrcode" />
-                                </Text>
-                            </TouchableOpacity>
+                            <ProcurarVeiculo onVeiculoSelect={handleVeiculoSelect} currentVehicle={veiculo} onOpenScanner={() => setShowScannerGlobal(true)} />
                         </View>
                     )}
                 </ScrollView>
             )}
-            {showDatePicker && <DateTimePicker value={new Date()} mode="date" display="default" onChange={handleDateChange} />}
         </SafeAreaView>
     );
 }
